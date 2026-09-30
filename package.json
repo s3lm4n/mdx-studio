@@ -1,0 +1,10 @@
+{
+  "name": "mdx-studio",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Windows desktop control plane for GROMACS + future MDX molecular-dynamics workloads.",
+  "license": "UNLICENSED",
+  "scripts": {
+    "doctor:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/doctor-windows.ps1"
+  }
+}

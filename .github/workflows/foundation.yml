@@ -1,0 +1,22 @@
+name: foundation
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  repository-sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject machine-specific absolute paths in implementation files
+        shell: bash
+        run: |
+          set -euo pipefail
+          roots=(apps services packages scripts tests)
+          if grep -RInE --exclude='*.md' 'C:\\Users\\|/home/[A-Za-z0-9._-]+/' "${roots[@]}"; then
+            echo 'Machine-specific absolute path detected in implementation files.' >&2
+            exit 1
+          fi
+      - name: Show repository foundation
+        run: find . -maxdepth 3 -type f -not -path './.git/*' | sort

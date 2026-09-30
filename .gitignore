@@ -1,0 +1,56 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*.local.json
+*.swp
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Node / frontend
+node_modules/
+.pnpm-store/
+dist/
+build/
+coverage/
+.vite/
+
+# Tauri / Rust
+target/
+**/target/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Runtime / logs
+*.log
+logs/
+runs/
+artifacts/
+telemetry/
+
+# Scientific generated outputs (never commit by default)
+*.xtc
+*.trr
+*.edr
+*.cpt
+*.tpr
+*.gro
+*.top
+*.itp
+
+# Local developer state
+.local/
+.tmp/
+tmp/
