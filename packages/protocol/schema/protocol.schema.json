@@ -1,0 +1,2124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MDX Studio runtime protocol",
+  "x-protocolVersion": "0.1.0",
+  "x-generatedFrom": "packages/protocol/src (zod). Do not edit by hand; run `pnpm schema:emit`.",
+  "definitions": {
+    "RuntimeHealth": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "ok",
+            "degraded",
+            "unavailable"
+          ]
+        },
+        "protocolVersion": {
+          "type": "string"
+        },
+        "runtimeVersion": {
+          "type": "string"
+        },
+        "implementation": {
+          "type": "string"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "simulated",
+            "measured"
+          ]
+        },
+        "checkedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+        }
+      },
+      "required": [
+        "status",
+        "protocolVersion",
+        "runtimeVersion",
+        "implementation",
+        "origin",
+        "checkedAt"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeCapabilities": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "protocolVersion": {
+          "type": "string"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "simulated",
+            "measured"
+          ]
+        },
+        "runModes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "native",
+              "mdx",
+              "validation"
+            ]
+          }
+        },
+        "supportsStop": {
+          "type": "boolean"
+        },
+        "supportsPause": {
+          "type": "boolean"
+        },
+        "gromacs": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "detected": {
+              "type": "boolean"
+            },
+            "version": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "origin": {
+              "type": "string",
+              "enum": [
+                "simulated",
+                "measured"
+              ]
+            },
+            "detail": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "name",
+            "detected",
+            "version",
+            "origin",
+            "detail"
+          ],
+          "additionalProperties": false
+        },
+        "mdxDevice": {
+          "type": "object",
+          "properties": {
+            "integration": {
+              "type": "string",
+              "enum": [
+                "mock",
+                "hardware"
+              ]
+            },
+            "origin": {
+              "type": "string",
+              "enum": [
+                "simulated",
+                "measured"
+              ]
+            }
+          },
+          "required": [
+            "integration",
+            "origin"
+          ],
+          "additionalProperties": false
+        },
+        "mdxProfiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "description"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "protocolVersion",
+        "origin",
+        "runModes",
+        "supportsStop",
+        "supportsPause",
+        "gromacs",
+        "mdxDevice",
+        "mdxProfiles"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "invalid-request",
+            "not-found",
+            "preflight-failed",
+            "conflict",
+            "unsupported",
+            "unavailable",
+            "internal"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "issues": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "message"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "retryable": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "issues",
+        "retryable"
+      ],
+      "additionalProperties": false
+    },
+    "SimulationRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "projectId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "stage": {
+          "type": "string",
+          "enum": [
+            "EM",
+            "NVT",
+            "NPT",
+            "PRODUCTION"
+          ]
+        },
+        "runMode": {
+          "type": "string",
+          "enum": [
+            "native",
+            "mdx",
+            "validation"
+          ]
+        },
+        "inputStructure": {
+          "type": "string",
+          "maxLength": 255,
+          "allOf": [
+            {
+              "pattern": "^(?!\\.{1,2}(?:\\/|$))(?:[A-Za-z0-9._+@=-]+)(?:\\/(?!\\.{1,2}(?:\\/|$))[A-Za-z0-9._+@=-]+)*$"
+            },
+            {
+              "pattern": "\\.(?:gro)$"
+            }
+          ]
+        },
+        "topology": {
+          "type": "string",
+          "maxLength": 255,
+          "allOf": [
+            {
+              "pattern": "^(?!\\.{1,2}(?:\\/|$))(?:[A-Za-z0-9._+@=-]+)(?:\\/(?!\\.{1,2}(?:\\/|$))[A-Za-z0-9._+@=-]+)*$"
+            },
+            {
+              "pattern": "\\.(?:top)$"
+            }
+          ]
+        },
+        "mdp": {
+          "type": "string",
+          "maxLength": 255,
+          "allOf": [
+            {
+              "pattern": "^(?!\\.{1,2}(?:\\/|$))(?:[A-Za-z0-9._+@=-]+)(?:\\/(?!\\.{1,2}(?:\\/|$))[A-Za-z0-9._+@=-]+)*$"
+            },
+            {
+              "pattern": "\\.(?:mdp)$"
+            }
+          ]
+        },
+        "checkpoint": {
+          "type": "string",
+          "maxLength": 255,
+          "allOf": [
+            {
+              "pattern": "^(?!\\.{1,2}(?:\\/|$))(?:[A-Za-z0-9._+@=-]+)(?:\\/(?!\\.{1,2}(?:\\/|$))[A-Za-z0-9._+@=-]+)*$"
+            },
+            {
+              "pattern": "\\.(?:cpt)$"
+            }
+          ]
+        },
+        "continuation": {
+          "type": "boolean"
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "threads": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1024
+            },
+            "computeTarget": {
+              "type": "string",
+              "enum": [
+                "cpu"
+              ]
+            }
+          },
+          "required": [
+            "threads",
+            "computeTarget"
+          ],
+          "additionalProperties": false
+        },
+        "mdxProfile": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "validationProfile": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "outputName": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "outputDirectory": {
+          "type": "string",
+          "maxLength": 255,
+          "pattern": "^(?!\\.{1,2}(?:\\/|$))(?:[A-Za-z0-9._+@=-]+)(?:\\/(?!\\.{1,2}(?:\\/|$))[A-Za-z0-9._+@=-]+)*$"
+        }
+      },
+      "required": [
+        "projectId",
+        "stage",
+        "runMode",
+        "inputStructure",
+        "topology",
+        "mdp",
+        "continuation",
+        "resources",
+        "outputName",
+        "outputDirectory"
+      ],
+      "additionalProperties": false
+    },
+    "PreflightReport": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "runMode": {
+          "type": "string",
+          "enum": [
+            "native",
+            "mdx",
+            "validation"
+          ]
+        },
+        "generatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "simulated",
+            "measured"
+          ]
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "group": {
+                "type": "string",
+                "enum": [
+                  "inputs",
+                  "runtime",
+                  "gromacs",
+                  "device",
+                  "policy"
+                ]
+              },
+              "title": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "PASS",
+                  "WARN",
+                  "FAIL",
+                  "SKIPPED"
+                ]
+              },
+              "critical": {
+                "type": "boolean"
+              },
+              "detail": {
+                "type": "string"
+              },
+              "origin": {
+                "type": "string",
+                "enum": [
+                  "simulated",
+                  "measured"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "group",
+              "title",
+              "status",
+              "critical",
+              "detail",
+              "origin"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "WARN",
+            "FAIL"
+          ]
+        },
+        "startPermitted": {
+          "type": "boolean"
+        },
+        "blockingCheckIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "runMode",
+        "generatedAt",
+        "origin",
+        "checks",
+        "verdict",
+        "startPermitted",
+        "blockingCheckIds"
+      ],
+      "additionalProperties": false
+    },
+    "JobRecord": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "runId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "projectId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "CREATED",
+            "VALIDATING",
+            "READY",
+            "STARTING",
+            "RUNNING",
+            "PAUSED",
+            "COMPLETED",
+            "FAILED",
+            "ABORTED"
+          ]
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "simulated",
+            "measured"
+          ]
+        },
+        "request": {
+          "type": "object",
+          "properties": {
+            "projectId": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            },
+            "stage": {
+              "type": "string",
+              "enum": [
+                "EM",
+                "NVT",
+                "NPT",
+                "PRODUCTION"
+              ]
+            },
+            "runMode": {
+              "type": "string",
+              "enum": [
+                "native",
+                "mdx",
+                "validation"
+              ]
+            },
+            "inputStructure": {
+              "type": "string",
+              "maxLength": 255,
+              "allOf": [
+                {
+                  "pattern": "^(?!\\.{1,2}(?:\\/|$))(?:[A-Za-z0-9._+@=-]+)(?:\\/(?!\\.{1,2}(?:\\/|$))[A-Za-z0-9._+@=-]+)*$"
+                },
+                {
+                  "pattern": "\\.(?:gro)$"
+                }
+              ]
+            },
+            "topology": {
+              "type": "string",
+              "maxLength": 255,
+              "allOf": [
+                {
+                  "pattern": "^(?!\\.{1,2}(?:\\/|$))(?:[A-Za-z0-9._+@=-]+)(?:\\/(?!\\.{1,2}(?:\\/|$))[A-Za-z0-9._+@=-]+)*$"
+                },
+                {
+                  "pattern": "\\.(?:top)$"
+                }
+              ]
+            },
+            "mdp": {
+              "type": "string",
+              "maxLength": 255,
+              "allOf": [
+                {
+                  "pattern": "^(?!\\.{1,2}(?:\\/|$))(?:[A-Za-z0-9._+@=-]+)(?:\\/(?!\\.{1,2}(?:\\/|$))[A-Za-z0-9._+@=-]+)*$"
+                },
+                {
+                  "pattern": "\\.(?:mdp)$"
+                }
+              ]
+            },
+            "checkpoint": {
+              "type": "string",
+              "maxLength": 255,
+              "allOf": [
+                {
+                  "pattern": "^(?!\\.{1,2}(?:\\/|$))(?:[A-Za-z0-9._+@=-]+)(?:\\/(?!\\.{1,2}(?:\\/|$))[A-Za-z0-9._+@=-]+)*$"
+                },
+                {
+                  "pattern": "\\.(?:cpt)$"
+                }
+              ]
+            },
+            "continuation": {
+              "type": "boolean"
+            },
+            "resources": {
+              "type": "object",
+              "properties": {
+                "threads": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 1024
+                },
+                "computeTarget": {
+                  "type": "string",
+                  "enum": [
+                    "cpu"
+                  ]
+                }
+              },
+              "required": [
+                "threads",
+                "computeTarget"
+              ],
+              "additionalProperties": false
+            },
+            "mdxProfile": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            },
+            "validationProfile": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            },
+            "outputName": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            },
+            "outputDirectory": {
+              "type": "string",
+              "maxLength": 255,
+              "pattern": "^(?!\\.{1,2}(?:\\/|$))(?:[A-Za-z0-9._+@=-]+)(?:\\/(?!\\.{1,2}(?:\\/|$))[A-Za-z0-9._+@=-]+)*$"
+            }
+          },
+          "required": [
+            "projectId",
+            "stage",
+            "runMode",
+            "inputStructure",
+            "topology",
+            "mdp",
+            "continuation",
+            "resources",
+            "outputName",
+            "outputDirectory"
+          ],
+          "additionalProperties": false
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+        },
+        "startedAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "finishedAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "allowedActions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "stop"
+            ]
+          }
+        },
+        "failure": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "enum": [
+                    "invalid-request",
+                    "not-found",
+                    "preflight-failed",
+                    "conflict",
+                    "unsupported",
+                    "unavailable",
+                    "internal"
+                  ]
+                },
+                "message": {
+                  "type": "string"
+                },
+                "issues": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "path",
+                      "message"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "retryable": {
+                  "default": false,
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "code",
+                "message",
+                "issues",
+                "retryable"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "runId",
+        "projectId",
+        "state",
+        "origin",
+        "request",
+        "createdAt",
+        "startedAt",
+        "finishedAt",
+        "allowedActions",
+        "failure"
+      ],
+      "additionalProperties": false
+    },
+    "JobEvent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "jobId": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            },
+            "origin": {
+              "type": "string",
+              "enum": [
+                "simulated",
+                "measured"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "state-changed"
+            },
+            "from": {
+              "type": "string",
+              "enum": [
+                "CREATED",
+                "VALIDATING",
+                "READY",
+                "STARTING",
+                "RUNNING",
+                "PAUSED",
+                "COMPLETED",
+                "FAILED",
+                "ABORTED"
+              ]
+            },
+            "to": {
+              "type": "string",
+              "enum": [
+                "CREATED",
+                "VALIDATING",
+                "READY",
+                "STARTING",
+                "RUNNING",
+                "PAUSED",
+                "COMPLETED",
+                "FAILED",
+                "ABORTED"
+              ]
+            },
+            "reason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "jobId",
+            "sequence",
+            "timestamp",
+            "origin",
+            "type",
+            "from",
+            "to",
+            "reason"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "jobId": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            },
+            "origin": {
+              "type": "string",
+              "enum": [
+                "simulated",
+                "measured"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "log"
+            },
+            "level": {
+              "type": "string",
+              "enum": [
+                "info",
+                "warn",
+                "error"
+              ]
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "jobId",
+            "sequence",
+            "timestamp",
+            "origin",
+            "type",
+            "level",
+            "message"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "jobId": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            },
+            "origin": {
+              "type": "string",
+              "enum": [
+                "simulated",
+                "measured"
+              ]
+            },
+            "type": {
+              "type": "string",
+              "const": "error"
+            },
+            "error": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "enum": [
+                    "invalid-request",
+                    "not-found",
+                    "preflight-failed",
+                    "conflict",
+                    "unsupported",
+                    "unavailable",
+                    "internal"
+                  ]
+                },
+                "message": {
+                  "type": "string"
+                },
+                "issues": {
+                  "default": [],
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "path": {
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "path",
+                      "message"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "retryable": {
+                  "default": false,
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "code",
+                "message",
+                "issues",
+                "retryable"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "jobId",
+            "sequence",
+            "timestamp",
+            "origin",
+            "type",
+            "error"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "TelemetrySnapshot": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "string",
+          "enum": [
+            "simulated",
+            "measured"
+          ]
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+        },
+        "jobId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "simulation": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "step": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "timeNs": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "targetTimeNs": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "progress": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "nsPerDay": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "etaSeconds": {
+                  "anyOf": [
+                    {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "step",
+                "timeNs",
+                "targetTimeNs",
+                "progress",
+                "nsPerDay",
+                "etaSeconds"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "gromacs": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "temperatureK": {
+                  "type": "number"
+                },
+                "pressureBar": {
+                  "type": "number"
+                },
+                "potentialEnergyKJMol": {
+                  "type": "number"
+                },
+                "totalEnergyKJMol": {
+                  "type": "number"
+                },
+                "neighborListRebuilds": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "temperatureK",
+                "pressureBar",
+                "potentialEnergyKJMol",
+                "totalEnergyKJMol",
+                "neighborListRebuilds"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mdx": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "deviceState": {
+                  "type": "string",
+                  "enum": [
+                    "DISCONNECTED",
+                    "CONNECTING",
+                    "READY",
+                    "RUNNING",
+                    "THROTTLED",
+                    "ERROR",
+                    "ABORTING"
+                  ]
+                },
+                "utilization": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "pairThroughputGPairsPerSecond": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "queueOccupancy": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "backpressure": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "errorCount": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "watchdog": {
+                  "type": "string",
+                  "enum": [
+                    "DISARMED",
+                    "ARMED",
+                    "TRIPPED"
+                  ]
+                }
+              },
+              "required": [
+                "deviceState",
+                "utilization",
+                "pairThroughputGPairsPerSecond",
+                "queueOccupancy",
+                "backpressure",
+                "errorCount",
+                "watchdog"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hardware": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "temperatureC": {
+                  "type": "number"
+                },
+                "powerW": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "clockMHz": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "pcieLink": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "up",
+                        "degraded",
+                        "down"
+                      ]
+                    },
+                    "generation": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 6
+                    },
+                    "lanes": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 32
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "generation",
+                    "lanes"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "temperatureC",
+                "powerW",
+                "clockMHz",
+                "pcieLink"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "host": {
+          "type": "object",
+          "properties": {
+            "cpuUtilization": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "memoryUsedBytes": {
+              "type": "number",
+              "minimum": 0
+            },
+            "memoryTotalBytes": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "required": [
+            "cpuUtilization",
+            "memoryUsedBytes",
+            "memoryTotalBytes"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "origin",
+        "sequence",
+        "timestamp",
+        "jobId",
+        "simulation",
+        "gromacs",
+        "mdx",
+        "hardware",
+        "host"
+      ],
+      "additionalProperties": false
+    },
+    "MdxDeviceStatus": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "string",
+          "enum": [
+            "simulated",
+            "measured"
+          ]
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "DISCONNECTED",
+            "CONNECTING",
+            "READY",
+            "RUNNING",
+            "THROTTLED",
+            "ERROR",
+            "ABORTING"
+          ]
+        },
+        "identity": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "model": {
+                  "type": "string"
+                },
+                "firmwareVersion": {
+                  "type": "string"
+                },
+                "bitstreamChecksum": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "model",
+                "firmwareVersion",
+                "bitstreamChecksum"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "link": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "up",
+                    "degraded",
+                    "down"
+                  ]
+                },
+                "generation": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 6
+                },
+                "lanes": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 32
+                }
+              },
+              "required": [
+                "status",
+                "generation",
+                "lanes"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "temperatureC": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "powerW": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "clockMHz": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "watchdog": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": [
+                "DISARMED",
+                "ARMED",
+                "TRIPPED"
+              ]
+            },
+            "timeoutMs": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "state",
+            "timeoutMs"
+          ],
+          "additionalProperties": false
+        },
+        "lastError": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "code",
+                "message"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+        }
+      },
+      "required": [
+        "origin",
+        "state",
+        "identity",
+        "link",
+        "temperatureC",
+        "powerW",
+        "clockMHz",
+        "watchdog",
+        "lastError",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    },
+    "ValidationProfile": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "version": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "simulated",
+            "measured"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "placeholder",
+            "experimental",
+            "qualified"
+          ]
+        },
+        "gates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "string",
+                "enum": [
+                  "force",
+                  "energy",
+                  "virial",
+                  "position",
+                  "shift-force"
+                ]
+              },
+              "description": {
+                "type": "string"
+              },
+              "maxAbsoluteError": {
+                "type": "number",
+                "minimum": 0
+              },
+              "unit": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "quantity",
+              "description",
+              "maxAbsoluteError",
+              "unit"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "title",
+        "description",
+        "origin",
+        "status",
+        "gates"
+      ],
+      "additionalProperties": false
+    },
+    "ValidationResult": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "jobId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "projectId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "profileId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "profileVersion": {
+          "type": "string"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "simulated",
+            "measured"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "passed",
+            "failed"
+          ]
+        },
+        "completedAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "gates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "gateId": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "string",
+                "enum": [
+                  "force",
+                  "energy",
+                  "virial",
+                  "position",
+                  "shift-force"
+                ]
+              },
+              "observedMaxError": {
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "maxAbsoluteError": {
+                "type": "number",
+                "minimum": 0
+              },
+              "unit": {
+                "type": "string"
+              },
+              "passed": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "gateId",
+              "quantity",
+              "observedMaxError",
+              "maxAbsoluteError",
+              "unit",
+              "passed"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "id",
+        "jobId",
+        "projectId",
+        "profileId",
+        "profileVersion",
+        "origin",
+        "status",
+        "completedAt",
+        "gates"
+      ],
+      "additionalProperties": false
+    },
+    "ProvenanceRecord": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "runId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "jobId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "simulated",
+            "measured"
+          ]
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+        },
+        "finishedAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resultStatus": {
+          "type": "string",
+          "enum": [
+            "running",
+            "completed",
+            "failed",
+            "aborted"
+          ]
+        },
+        "validationStatus": {
+          "type": "string",
+          "enum": [
+            "not-run",
+            "pending",
+            "passed",
+            "failed"
+          ]
+        },
+        "gromacsVersion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "runtimeVersion": {
+          "type": "string"
+        },
+        "protocolVersion": {
+          "type": "string"
+        },
+        "mdxFirmware": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "version": {
+                  "type": "string"
+                },
+                "bitstreamChecksum": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "version",
+                "bitstreamChecksum"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "binaryHashes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "algorithm": {
+                "type": "string",
+                "const": "sha256"
+              },
+              "digest": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            },
+            "required": [
+              "name",
+              "algorithm",
+              "digest"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "tprHash": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mdpHash": {
+          "type": "string"
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "purpose": {
+                "type": "string"
+              },
+              "argv": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "display": {
+                "type": "string"
+              },
+              "workingDirectory": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "const": "."
+                  },
+                  {
+                    "type": "string",
+                    "maxLength": 255,
+                    "pattern": "^(?!\\.{1,2}(?:\\/|$))(?:[A-Za-z0-9._+@=-]+)(?:\\/(?!\\.{1,2}(?:\\/|$))[A-Za-z0-9._+@=-]+)*$"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "purpose",
+              "argv",
+              "display",
+              "workingDirectory"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "runtimeConfiguration": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          }
+        },
+        "logs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "relativePath": {
+                "type": "string",
+                "maxLength": 255,
+                "pattern": "^(?!\\.{1,2}(?:\\/|$))(?:[A-Za-z0-9._+@=-]+)(?:\\/(?!\\.{1,2}(?:\\/|$))[A-Za-z0-9._+@=-]+)*$"
+              },
+              "sizeBytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "name",
+              "relativePath",
+              "sizeBytes"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "runId",
+        "jobId",
+        "origin",
+        "startedAt",
+        "finishedAt",
+        "resultStatus",
+        "validationStatus",
+        "gromacsVersion",
+        "runtimeVersion",
+        "protocolVersion",
+        "mdxFirmware",
+        "binaryHashes",
+        "tprHash",
+        "mdpHash",
+        "commands",
+        "runtimeConfiguration",
+        "logs"
+      ],
+      "additionalProperties": false
+    },
+    "RunSummary": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "runId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "jobId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "projectId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "stage": {
+          "type": "string",
+          "enum": [
+            "EM",
+            "NVT",
+            "NPT",
+            "PRODUCTION"
+          ]
+        },
+        "runMode": {
+          "type": "string",
+          "enum": [
+            "native",
+            "mdx",
+            "validation"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "running",
+            "completed",
+            "failed",
+            "aborted"
+          ]
+        },
+        "validationStatus": {
+          "type": "string",
+          "enum": [
+            "not-run",
+            "pending",
+            "passed",
+            "failed"
+          ]
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+        },
+        "finishedAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "simulated",
+            "measured"
+          ]
+        }
+      },
+      "required": [
+        "runId",
+        "jobId",
+        "projectId",
+        "stage",
+        "runMode",
+        "status",
+        "validationStatus",
+        "startedAt",
+        "finishedAt",
+        "origin"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectSummary": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "simulated",
+            "measured"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "origin",
+        "updatedAt"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectDetail": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "simulated",
+            "measured"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "maxLength": 255,
+                "pattern": "^(?!\\.{1,2}(?:\\/|$))(?:[A-Za-z0-9._+@=-]+)(?:\\/(?!\\.{1,2}(?:\\/|$))[A-Za-z0-9._+@=-]+)*$"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "gro",
+                  "tpr",
+                  "top",
+                  "itp",
+                  "mdp",
+                  "cpt"
+                ]
+              },
+              "sizeBytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "path",
+              "kind",
+              "sizeBytes"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "stages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "stage": {
+                "type": "string",
+                "enum": [
+                  "EM",
+                  "NVT",
+                  "NPT",
+                  "PRODUCTION"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "not-started",
+                  "running",
+                  "completed",
+                  "failed"
+                ]
+              },
+              "mdp": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "maxLength": 255,
+                    "pattern": "^(?!\\.{1,2}(?:\\/|$))(?:[A-Za-z0-9._+@=-]+)(?:\\/(?!\\.{1,2}(?:\\/|$))[A-Za-z0-9._+@=-]+)*$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "stage",
+              "status",
+              "mdp"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "origin",
+        "updatedAt",
+        "files",
+        "stages"
+      ],
+      "additionalProperties": false
+    },
+    "MdpDocument": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "projectId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+        },
+        "path": {
+          "type": "string",
+          "maxLength": 255,
+          "pattern": "^(?!\\.{1,2}(?:\\/|$))(?:[A-Za-z0-9._+@=-]+)(?:\\/(?!\\.{1,2}(?:\\/|$))[A-Za-z0-9._+@=-]+)*$"
+        },
+        "text": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "projectId",
+        "path",
+        "text",
+        "sha256"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

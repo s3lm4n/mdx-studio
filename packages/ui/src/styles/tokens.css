@@ -1,0 +1,89 @@
+/*
+ * MDX Studio design tokens. Restrained scientific/HPC workstation look: neutral slate surfaces,
+ * one cool accent, semantic status colours. Dark is the default; light via [data-theme="light"].
+ * Status is never conveyed by colour alone (components always render a text label).
+ */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --mdx-bg: #0e1116;
+  --mdx-surface: #151a21;
+  --mdx-surface-raised: #1b212a;
+  --mdx-surface-sunken: #11151b;
+  --mdx-border: #262d38;
+  --mdx-border-strong: #364051;
+  --mdx-text: #e3e8ef;
+  --mdx-text-muted: #98a3b3;
+  --mdx-text-faint: #6f7a8b;
+  --mdx-accent: #4aa8d8;
+  --mdx-accent-strong: #2f8fc2;
+  --mdx-accent-contrast: #06141d;
+  --mdx-accent-soft: rgba(74, 168, 216, 0.14);
+  --mdx-pass: #46b882;
+  --mdx-pass-soft: rgba(70, 184, 130, 0.14);
+  --mdx-warn: #e3ab3f;
+  --mdx-warn-soft: rgba(227, 171, 63, 0.15);
+  --mdx-fail: #ea5d55;
+  --mdx-fail-soft: rgba(234, 93, 85, 0.15);
+  --mdx-info: #6d9eeb;
+  --mdx-info-soft: rgba(109, 158, 235, 0.15);
+  --mdx-demo: #d99a2b;
+  --mdx-demo-soft: rgba(217, 154, 43, 0.16);
+  --mdx-chart-1: #4aa8d8;
+  --mdx-chart-2: #46b882;
+  --mdx-chart-3: #e3ab3f;
+  --mdx-chart-4: #b98ae8;
+  --mdx-chart-grid: #232a34;
+  --mdx-focus: #7cc4ea;
+  --mdx-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --mdx-bg: #f3f5f8;
+  --mdx-surface: #ffffff;
+  --mdx-surface-raised: #ffffff;
+  --mdx-surface-sunken: #eef1f5;
+  --mdx-border: #d8dee7;
+  --mdx-border-strong: #b9c2cf;
+  --mdx-text: #18202b;
+  --mdx-text-muted: #4d5a6b;
+  --mdx-text-faint: #748094;
+  --mdx-accent: #1f79ad;
+  --mdx-accent-strong: #176392;
+  --mdx-accent-contrast: #ffffff;
+  --mdx-accent-soft: rgba(31, 121, 173, 0.1);
+  --mdx-pass: #1f8a5b;
+  --mdx-pass-soft: rgba(31, 138, 91, 0.12);
+  --mdx-warn: #9a6a00;
+  --mdx-warn-soft: rgba(154, 106, 0, 0.12);
+  --mdx-fail: #c2362f;
+  --mdx-fail-soft: rgba(194, 54, 47, 0.1);
+  --mdx-info: #3b6ac2;
+  --mdx-info-soft: rgba(59, 106, 194, 0.1);
+  --mdx-demo: #9a6200;
+  --mdx-demo-soft: rgba(154, 98, 0, 0.12);
+  --mdx-chart-1: #1f79ad;
+  --mdx-chart-2: #1f8a5b;
+  --mdx-chart-3: #b07800;
+  --mdx-chart-4: #7d4fb0;
+  --mdx-chart-grid: #e3e8ef;
+  --mdx-focus: #1f79ad;
+  --mdx-shadow: 0 1px 2px rgba(20, 30, 45, 0.08);
+}
+
+:root {
+  --mdx-font-sans:
+    "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --mdx-font-mono:
+    "Cascadia Mono", "Cascadia Code", ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono",
+    monospace;
+  --mdx-radius: 6px;
+  --mdx-radius-sm: 4px;
+  --mdx-space-1: 4px;
+  --mdx-space-2: 8px;
+  --mdx-space-3: 12px;
+  --mdx-space-4: 16px;
+  --mdx-space-5: 24px;
+  --mdx-space-6: 32px;
+}
