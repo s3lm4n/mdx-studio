@@ -7,13 +7,14 @@ Open project → select structure/topology → configure/load MDP → choose Nat
 ## Phase 1 shell views
 
 - Dashboard
-- Projects / Project
-- Simulation Setup
-- MDP Editor
+- Projects / Project (stages, files, run history)
+- Simulation Setup (with pre-flight and runtime-gated Start)
+- MDP Editor (Basic / Advanced / Raw; Raw preserves the exact text)
 - Monitor
 - Validation
 - Devices
 - Settings
+- Run detail / provenance (reached from run lists)
 
 ## Visual direction
 
@@ -23,4 +24,4 @@ Reference character: NVIDIA Nsight, scientific workstation tooling, modern obser
 
 ## Mocking rule
 
-Until runtime/hardware integration exists, realistic mock data is allowed only when clearly marked `DEMO` or `SIMULATED`.
+Until runtime/hardware integration exists, realistic mock data is allowed only when clearly marked `DEMO` or `SIMULATED`. A persistent banner and per-panel badges implement this; the banner is derived from the runtime's reported `origin`.
