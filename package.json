@@ -4,7 +4,33 @@
   "private": true,
   "description": "Windows desktop control plane for GROMACS + future MDX molecular-dynamics workloads.",
   "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
+  },
   "scripts": {
+    "dev": "pnpm --filter @mdx-studio/desktop dev",
+    "tauri:dev": "pnpm --filter @mdx-studio/desktop tauri dev",
+    "build": "pnpm --filter @mdx-studio/desktop build",
+    "lint": "eslint .",
+    "typecheck": "pnpm -r --workspace-concurrency=1 typecheck",
+    "test": "pnpm -r --workspace-concurrency=1 test && vitest run --config tests/vitest.config.ts",
+    "schema:emit": "pnpm --filter @mdx-studio/protocol schema:emit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "doctor:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/doctor-windows.ps1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.20.4",
+    "eslint": "^10.11.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.12.0",
+    "prettier": "^3.9.9",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^5.0.2"
   }
 }

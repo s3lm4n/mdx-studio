@@ -8,3 +8,16 @@
 *.tsx text eol=lf
 *.py text eol=lf
 *.md text eol=lf
+*.json text eol=lf
+*.jsonc text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.mjs text eol=lf
+*.js text eol=lf
+*.lock text eol=lf
+*.png binary
+*.ico binary
+*.icns binary

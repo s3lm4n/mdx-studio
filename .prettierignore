@@ -1,0 +1,11 @@
+node_modules
+dist
+coverage
+pnpm-lock.yaml
+target
+apps/desktop/src-tauri/gen
+apps/desktop/src-tauri/icons
+packages/protocol/schema
+Cargo.lock
+
+docs/CLAUDE_IMPLEMENTATION_BRIEF.md
