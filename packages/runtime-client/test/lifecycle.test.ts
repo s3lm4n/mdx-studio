@@ -136,7 +136,7 @@ describe("job lifecycle", () => {
 
 describe("critical device faults", () => {
   it("stop the dependent run, leave the device in ERROR and block new MDX starts", async () => {
-    const { clock, runtime } = createRuntime("nominal");
+    const { clock, runtime } = createRuntime("demo-run");
     const job = (await runtime.listJobs()).find((j) => j.state === "RUNNING");
     expect(job).toBeDefined();
 

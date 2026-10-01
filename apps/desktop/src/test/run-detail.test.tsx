@@ -4,7 +4,7 @@ import { renderApp } from "./render";
 
 describe("Run detail / provenance", () => {
   it("displays runtime-generated command provenance as read-only text", async () => {
-    renderApp("/runs/run-demo-0006");
+    renderApp("/runs/run-demo-0006", { scenario: "demo-run" });
     const command = await screen.findByLabelText("Command: Run the simulation");
     expect(command.tagName).toBe("PRE");
     expect(command).toHaveTextContent(/^gmx mdrun -s outputs\/prod-001\/prod-001\.tpr/);
@@ -18,7 +18,7 @@ describe("Run detail / provenance", () => {
   });
 
   it("shows versions, hashes, configuration and logs", async () => {
-    renderApp("/runs/run-demo-0006");
+    renderApp("/runs/run-demo-0006", { scenario: "demo-run" });
     await screen.findByText("Versions and hashes");
     expect(screen.getByText("2025.0-demo")).toBeInTheDocument();
     expect(screen.getByText("mdx-fw-demo-0.0.1")).toBeInTheDocument();
@@ -36,7 +36,8 @@ describe("Run detail / provenance", () => {
 
   it("is reachable from the dashboard's run list", async () => {
     const { router } = renderApp("/");
-    const link = await screen.findByRole("link", { name: "run-demo-0005" });
+    const table = await screen.findByRole("table", { name: "Recent runs" });
+    const link = await within(table).findByRole("link", { name: "run-demo-0005" });
     link.click();
     await screen.findByRole("heading", { level: 1, name: /^Run run-demo-0005/ });
     expect(router.state.location.pathname).toBe("/runs/run-demo-0005");

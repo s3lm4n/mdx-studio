@@ -1,0 +1,469 @@
+/* Monitor composition (DESIGN_LANGUAGE.md; Patina) */
+
+.mon-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--mdx-gutter);
+  align-items: stretch;
+}
+.mon-hero {
+  grid-column: span 8;
+}
+.mon-throughput {
+  grid-column: span 4;
+}
+.mon-thermo {
+  grid-column: span 12;
+}
+.mon-mdx {
+  grid-column: span 7;
+}
+.mon-hw {
+  grid-column: span 5;
+}
+.mon-events {
+  grid-column: span 8;
+}
+.mon-host {
+  grid-column: span 4;
+}
+/* Without a host panel (no telemetry yet) the log takes the full row. */
+.mon-events:last-child {
+  grid-column: span 12;
+}
+.mon-idle {
+  min-height: 300px;
+}
+
+/* Header */
+.mon-subtitle {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+}
+.mon-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--mdx-space-2);
+  flex-wrap: nowrap;
+}
+.mon-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 12px;
+  border: 1px solid var(--mdx-border-strong);
+  border-radius: var(--mdx-radius);
+  background: var(--mdx-surface-sunken);
+}
+.mon-select__label {
+  font-size: var(--mdx-text-label);
+  color: var(--mdx-text-faint);
+}
+.mdx-select.mon-select__control {
+  min-width: 290px;
+  border: 0;
+  background-color: transparent;
+}
+
+/* Shared readout typography */
+.mon-unit {
+  margin-left: 5px;
+  font-size: var(--mdx-text-label);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--mdx-text-muted);
+}
+.mon-readout dt {
+  font-size: var(--mdx-text-label);
+  color: var(--mdx-text-faint);
+}
+.mon-readout dd {
+  margin: 4px 0 0;
+}
+.mon-readout__value {
+  font-size: 19px;
+  font-weight: 350;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+}
+.mon-readout-xl {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.mon-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 2px 10px;
+  border: 1px solid var(--mdx-border-strong);
+  border-radius: var(--mdx-radius-pill);
+  font-size: var(--mdx-text-label);
+  color: var(--mdx-text-muted);
+  white-space: nowrap;
+}
+.mon-chip__value {
+  color: var(--mdx-text);
+  font-weight: 500;
+}
+
+/* Simulation hero */
+.mon-hero__cell {
+  top: 2%;
+  right: 4%;
+  width: 26%;
+  height: 46%;
+}
+.mon-hero__cell.mdx-motif {
+  opacity: 0.12;
+}
+.mon-hero__particles {
+  top: 0;
+  right: 0;
+  width: 64%;
+  height: 52%;
+}
+.mon-hero__particles.mdx-motif {
+  opacity: 0.08;
+}
+.mon-hero__body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.mon-hero__eyebrow {
+  margin: 0 0 8px;
+}
+.mon-hero__time {
+  margin: 0;
+  font-size: var(--mdx-text-hero);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+.mon-hero__target {
+  font-size: 19px;
+  font-weight: 350;
+  letter-spacing: -0.01em;
+  color: var(--mdx-text-muted);
+}
+.mon-hero__percent {
+  margin: 10px 0 0;
+  font-size: 15px;
+  color: var(--mdx-text-muted);
+}
+.mon-hero__percent span {
+  color: var(--mdx-text-faint);
+}
+.mon-hero__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--mdx-space-4);
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--mdx-border);
+}
+.mon-hero__waiting {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 10px 0 6px;
+}
+.mon-hero__waiting-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+/* Single-trace panel */
+.mon-trace-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+  height: 100%;
+}
+.mon-trace-panel__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--mdx-space-4);
+}
+.mon-range {
+  display: flex;
+  gap: var(--mdx-space-4);
+  margin: 0;
+}
+.mon-range dt {
+  font-size: var(--mdx-text-label);
+  color: var(--mdx-text-faint);
+}
+.mon-range dd {
+  margin: 2px 0 0;
+  font-size: 13px;
+}
+
+/* Instrument tiles (thermodynamics, hardware, pair throughput) */
+.mon-thermo__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--mdx-gutter);
+}
+.mon-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px 14px 10px;
+  border: 1px solid var(--mdx-border);
+  border-radius: var(--mdx-radius);
+  background: var(--mdx-surface-sunken);
+}
+.mon-tile__head {
+  display: grid;
+  gap: 2px;
+}
+.mon-tile__label {
+  margin: 0;
+  font-size: var(--mdx-text-label);
+  font-weight: 450;
+  color: var(--mdx-text-muted);
+}
+.mon-tile__value {
+  margin: 2px 0 0;
+  font-size: var(--mdx-text-readout);
+  font-weight: 350;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+}
+.mon-tile__stats {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--mdx-text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* MDX pipeline */
+.mon-mdx__rings {
+  top: -30px;
+  left: 4%;
+  width: 340px;
+  height: 340px;
+}
+.mon-mdx__body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+.mon-mdx__dial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.mon-mdx__caption {
+  margin: -10px 0 4px;
+  font-size: var(--mdx-text-label);
+  color: var(--mdx-text-faint);
+}
+.mon-mdx__side {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-top: 6px;
+  min-width: 0;
+}
+.mon-mdx__throughput {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--mdx-border);
+}
+.mon-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 6px 14px;
+  font-size: var(--mdx-text-label);
+  color: var(--mdx-text-faint);
+}
+.mon-status-row__value {
+  color: var(--mdx-text-muted);
+  font-weight: 500;
+}
+
+/* Accelerator hardware */
+.mon-hw__body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--mdx-gutter);
+}
+.mon-hw__body .mon-spec {
+  grid-column: span 2;
+}
+.mon-spec {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--mdx-space-4);
+  margin: 4px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--mdx-border);
+}
+.mon-spec dt {
+  font-size: var(--mdx-text-label);
+  color: var(--mdx-text-faint);
+}
+.mon-spec dd {
+  margin: 4px 0 0;
+  font-size: 15px;
+}
+.mon-spec__muted {
+  color: var(--mdx-text-muted);
+  font-size: var(--mdx-text-label);
+}
+
+/* Host */
+.mon-host__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.mon-host__note {
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--mdx-border);
+  font-size: var(--mdx-text-label);
+  color: var(--mdx-text-faint);
+}
+.mon-host__note-label {
+  margin-right: 8px;
+  color: var(--mdx-text-muted);
+}
+
+/* Native-run note */
+.mon-note {
+  grid-column: span 12;
+  margin: 0;
+  padding: 10px 16px;
+  border: 1px dashed var(--mdx-border-strong);
+  border-radius: var(--mdx-radius);
+  color: var(--mdx-text-muted);
+  font-size: var(--mdx-text-label);
+}
+
+/* Event log */
+.mon-events__list {
+  max-height: 300px;
+  overflow: auto;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+}
+.mon-event {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 14px;
+  padding: 6px var(--mdx-card-padding);
+  font-size: 12.5px;
+  border-top: 1px solid var(--mdx-border);
+}
+.mon-event:first-child {
+  border-top: 0;
+}
+.mon-event__time {
+  color: var(--mdx-text-faint);
+  font-family: var(--mdx-font-mono);
+  font-size: 12px;
+}
+.mon-event__state {
+  font-family: var(--mdx-font-mono);
+  font-size: 12px;
+  color: var(--mdx-text);
+}
+.mon-event__reason {
+  color: var(--mdx-text-faint);
+}
+.mon-event__log {
+  color: var(--mdx-text-muted);
+}
+.mon-event__log--warn {
+  color: var(--mdx-text);
+}
+.mon-event__error {
+  color: var(--mdx-text);
+}
+.mon-events__empty {
+  margin: 0;
+  padding: var(--mdx-card-padding);
+  color: var(--mdx-text-muted);
+}
+
+/* Idle */
+.mon-idle__rdf {
+  right: 5%;
+  bottom: 14%;
+  width: 46%;
+}
+.mon-idle__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 60ch;
+  padding-top: 18px;
+}
+.mon-idle__title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+.mon-idle__text {
+  margin: 0;
+}
+.mon-idle__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--mdx-space-5);
+  margin-top: 8px;
+}
+
+@media (max-width: 1280px) {
+  .mon-hero,
+  .mon-throughput,
+  .mon-mdx,
+  .mon-hw,
+  .mon-events,
+  .mon-host {
+    grid-column: span 12;
+  }
+  .mon-thermo__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 1200px) {
+  .mon-controls {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+@media (max-width: 760px) {
+  .mon-thermo__grid,
+  .mon-hero__stats,
+  .mon-mdx__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mdx-select.mon-select__control {
+    min-width: 0;
+  }
+}

@@ -1,0 +1,19 @@
+/*
+ * Geist and Geist Mono (variable, SIL OFL 1.1 — see ../fonts/OFL.txt). Vendored so the desktop app
+ * renders identically offline and under the Tauri CSP (`font-src 'self'`).
+ */
+@font-face {
+  font-family: "Geist";
+  src: url("../fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("../fonts/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}

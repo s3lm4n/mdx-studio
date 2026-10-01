@@ -1,10 +1,23 @@
 # Validation Status
 
 This page records what has actually been verified, where, and what has **not**. Windows 11 + WSL2 is
-the authoritative target platform; everything below was verified on **Linux only**.
+the authoritative target platform. The detailed results below were produced on **Linux**; Windows
+evidence is listed separately and is limited to CI and the owner's own run.
 
-> **No Windows build, run or test has been performed.** Linux results are not proof of Windows,
-> WebView2 or WSL2 compatibility.
+> Linux results are not proof of Windows, WebView2 or WSL2 compatibility. WSL2 and the runtime
+> boundary are untested (Phase 2).
+
+## Windows evidence
+
+| Evidence                                                                                                                              | Result                                                            |
+| ------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| GitHub Actions `windows-desktop` job (`windows-latest`): install, lint, typecheck, test, build, `tauri build --no-bundle`             | pass on every run since the job was added (main and Patina)       |
+| Owner ran the Tauri app on Windows 11 and approved the Patina Dashboard                                                               | reported by the owner                                             |
+| Brand icon in the Windows taskbar / title bar / Alt-Tab                                                                               | **not yet confirmed on Windows** (verified on Linux X11 only)     |
+| Local `pnpm install` with pnpm ≥ 11 fails with `ERR_PNPM_IGNORED_BUILDS` (esbuild) unless the workspace allows esbuild's build script | known; the owner has a local `allowBuilds` fix, not yet committed |
+
+If Windows keeps showing an old icon after rebuilding, it is usually the shell icon cache: unpin and
+re-pin the app, or restart Explorer.
 
 ## Environment of the Linux validation
 
@@ -26,11 +39,12 @@ the authoritative target platform; everything below was verified on **Linux only
 | `pnpm typecheck` (`tsc` strict, all workspaces)                    | 0 errors                                                                                               |
 | `pnpm test` — protocol                                             | 20 tests pass                                                                                          |
 | `pnpm test` — simulation-model                                     | 50 tests pass                                                                                          |
-| `pnpm test` — runtime-client                                       | 54 tests pass                                                                                          |
-| `pnpm test` — ui                                                   | 26 tests pass                                                                                          |
-| `pnpm test` — desktop (views, services, bridge; jsdom)             | 88 tests pass                                                                                          |
+| `pnpm test` — runtime-client                                       | 56 tests pass                                                                                          |
+| `pnpm test` — ui                                                   | 47 tests pass                                                                                          |
+| `pnpm test` — desktop (views, services, bridge, brand; jsdom)      | 132 tests pass                                                                                         |
 | `pnpm test` — `tests/architecture` guards                          | 31 tests pass                                                                                          |
-| `pnpm build` (tsc + Vite production build)                         | pass (bundle ≈ 524 kB, 158 kB gzip)                                                                    |
+| `pnpm build` (tsc + Vite production build)                         | pass (JS ≈ 558 kB, 168 kB gzip; fonts 141 kB)                                                          |
+| App icons match the brand geometry (`brand.test.tsx` re-renders)   | pass (14 ICO entries, 4 PNGs, ICNS entry set, favicon)                                                 |
 | Protocol JSON Schema up to date (`emit-schema.ts --check`)         | pass                                                                                                   |
 | CI path-sanity grep (no machine-specific absolute paths)           | clean                                                                                                  |
 | `cargo fmt --check`                                                | pass                                                                                                   |
@@ -39,9 +53,11 @@ the authoritative target platform; everything below was verified on **Linux only
 | `cargo check --locked`                                             | pass (capability permission `allow-get-app-info` accepted by `build.rs`)                               |
 | `pnpm tauri build --no-bundle` (release binary, frontend embedded) | pass                                                                                                   |
 | Launch smoke test of the release binary under Xvfb                 | ran for 25 s with no panic; window captured showing the rendered Dashboard (Tauri webview, CSP active) |
+| Window icon under X11 (openbox title bar, tint2 taskbar)           | brand icon shown (the 512 px PNG was silently dropped by GTK before the `bundle.icon` reorder)         |
+| Dashboard and Monitor in the release binary (WebKitGTK, dark)      | visually reviewed at 1440 × 920 in the idle and demo-run scenarios                                     |
 | Browser rendering of every main route (Chromium)                   | visually reviewed (light OS theme)                                                                     |
 
-Total TypeScript tests: **269**; Rust tests: **2**.
+Total TypeScript tests: **336**; Rust tests: **2**.
 
 Bugs found by these tests and fixed during development (kept here because they are the kind of issue
 that would otherwise only appear on a user's machine): `noise()` range; protocol/mock mismatch for the
@@ -58,21 +74,24 @@ endings silently rewritten by the Raw editor** (textareas normalise to LF).
 - jsdom is not a browser: layout, focus rings and visual regressions are only spot-checked manually.
 - No accessibility audit beyond semantic roles/labels asserted in tests.
 
-## Not verified — requires Windows 11 (owner action)
+## Windows checklist (owner action)
 
-The `windows-desktop` job in `.github/workflows/foundation.yml` is **defined but has never run**.
+`[x]` done, `[~]` partly covered (CI or owner report), `[ ]` open.
 
-Checklist to close the gap:
-
-1. [ ] `pnpm install --frozen-lockfile` with a stock Windows Node/pnpm.
-2. [ ] `pnpm check` (format, lint, typecheck, tests, build) — watch for CRLF/`autocrlf` effects.
+1. [x] `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` on
+       `windows-latest` with pnpm 10 (CI).
+2. [ ] The same with a local pnpm ≥ 11 (needs esbuild's build script allowed in
+       `pnpm-workspace.yaml`; see above), plus `pnpm format:check` on a CRLF (`autocrlf`) checkout.
 3. [ ] `cargo fmt --check`, `cargo clippy`, `cargo test` in `apps/desktop/src-tauri` (MSVC toolchain).
-4. [ ] `pnpm tauri:dev`: window opens, UI renders under **WebView2**, dev CSP permits HMR.
-5. [ ] `pnpm --filter @mdx-studio/desktop tauri build --no-bundle`: binary runs; production CSP
-       (`http://tauri.localhost` origin) permits the app; `get_app_info` reports `windows`.
+4. [~] `pnpm tauri:dev`: window opens and the UI renders under **WebView2** (owner-reported); dev CSP
+   permits HMR.
+5. [~] `pnpm --filter @mdx-studio/desktop tauri build --no-bundle` builds on `windows-latest` (CI);
+   still to confirm: the binary runs, the production CSP (`http://tauri.localhost`) permits the
+   app, `get_app_info` reports `windows`.
 6. [ ] Settings → About shows "Tauri desktop" with the Windows host details.
-7. [ ] Decide installer targets (bundling is disabled), replace the placeholder identifier/icon.
-8. [ ] WSL2 connectivity is Phase 2 and entirely untested.
+7. [ ] The brand icon appears in the taskbar, title bar and Alt-Tab (rebuild; refresh the icon cache).
+8. [ ] Decide installer targets (bundling is disabled), replace the placeholder identifier.
+9. [ ] WSL2 connectivity is Phase 2 and entirely untested.
 
 ## Other known gaps
 

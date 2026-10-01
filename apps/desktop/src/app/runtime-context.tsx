@@ -1,4 +1,5 @@
 import {
+  DEFAULT_SCENARIO,
   MockRuntimeClient,
   isMockRuntime,
   type RuntimeClient,
@@ -34,7 +35,7 @@ export interface RuntimeProviderProps {
  */
 export function RuntimeProvider({ children, client }: RuntimeProviderProps) {
   const [runtime, setRuntime] = useState<RuntimeClient>(
-    () => client ?? new MockRuntimeClient({ scenario: "nominal", autoStart: false }),
+    () => client ?? new MockRuntimeClient({ scenario: DEFAULT_SCENARIO, autoStart: false }),
   );
 
   // start()/dispose() are idempotent, so React StrictMode's mount/unmount/mount is safe.

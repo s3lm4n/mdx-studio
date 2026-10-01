@@ -181,6 +181,7 @@ export default tseslint.config(
   {
     files: [
       "packages/protocol/scripts/**/*.ts",
+      "apps/desktop/scripts/**/*.ts",
       "tests/**/*.ts",
       "**/vite.config.ts",
       "**/vitest.config.ts",

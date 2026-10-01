@@ -32,7 +32,7 @@ import {
 import { sha256Hex } from "./hash";
 import { MockJobManager } from "./job-manager";
 import { evaluatePreflight } from "./preflight";
-import { SCENARIOS, type ScenarioDefinition, type ScenarioId } from "./scenarios";
+import { DEFAULT_SCENARIO, SCENARIOS, type ScenarioDefinition, type ScenarioId } from "./scenarios";
 import { DEMO_VALIDATION_PROFILES } from "./validation-provider";
 
 export const MOCK_TICK_INTERVAL_MS = 1_000;
@@ -98,7 +98,7 @@ export class MockRuntimeClient implements RuntimeClient, MockRuntimeControls {
   private lastTickMs: number;
 
   constructor(options: MockRuntimeOptions = {}) {
-    this.scenario = SCENARIOS[options.scenario ?? "nominal"];
+    this.scenario = SCENARIOS[options.scenario ?? DEFAULT_SCENARIO];
     this.clock = options.clock ?? systemClock;
     this.projects = DEMO_PROJECTS;
     for (const project of this.projects) {

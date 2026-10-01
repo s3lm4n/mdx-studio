@@ -9,6 +9,7 @@ export {
   type MockRuntimeOptions,
 } from "./mock/mock-runtime";
 export {
+  DEFAULT_SCENARIO,
   SCENARIOS,
   SCENARIO_IDS,
   type ScenarioDefinition,

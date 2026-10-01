@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { renderApp } from "./render";
@@ -62,6 +62,23 @@ describe("navigation shell", () => {
     expect(screen.getByRole("link", { name: "Dashboard" })).not.toHaveAttribute("aria-current");
     await user.click(screen.getByRole("link", { name: "Settings" }));
     expect(await screen.findByRole("heading", { level: 1, name: /^Settings/ })).toBeInTheDocument();
+  });
+
+  it("marks Monitor while a run is in progress and clears it when the demo runtime is reset", async () => {
+    const user = userEvent.setup();
+    renderApp("/settings", { scenario: "demo-run" });
+    const monitor = screen.getByRole("link", { name: "Monitor" });
+    await waitFor(() => {
+      expect(monitor).toHaveAttribute("data-live", "true");
+    });
+    expect(monitor).toHaveAttribute("title", "1 run in progress");
+
+    const controls = await screen.findByRole("region", { name: "Demo runtime controls" });
+    await user.selectOptions(within(controls).getByRole("combobox", { name: "Scenario" }), "idle");
+    await user.click(within(controls).getByRole("button", { name: /Apply scenario/ }));
+    await waitFor(() => {
+      expect(screen.getByRole("link", { name: "Monitor" })).not.toHaveAttribute("data-live");
+    });
   });
 
   it("redirects unknown routes to the dashboard", async () => {
