@@ -4,7 +4,7 @@ import ts from "typescript";
 
 export const REPO_ROOT = resolve(import.meta.dirname, "../..");
 
-const SKIP_DIRS = new Set(["node_modules", "dist", "target", ".git", "gen", "coverage"]);
+const SKIP_DIRS = new Set(["node_modules", "dist", "target", ".git", "gen", "coverage", ".venv"]);
 
 export function walk(dir: string, accept: (file: string) => boolean): string[] {
   const out: string[] = [];

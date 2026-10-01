@@ -24,6 +24,14 @@ detection, structured command builder, process lifecycle abstraction, event/log 
 service-backed `RuntimeClient`. Windows↔WSL discovery/connection in the Tauri shell (typed, not shell
 text). Cross-language conformance fixtures. No MDX hardware.
 
+### Phase 2A-1 — Runtime foundation and GROMACS discovery — **implemented (WSL-validated)**
+
+- Standalone loopback-only Python service with `GET /health`, `GET /capabilities`, and `GET /version`.
+- Deterministic real GROMACS discovery from runtime configuration, then `PATH`, with no shell use.
+- Shared Python/TypeScript contract fixtures for the health and capabilities payloads.
+- No advertised run modes or process controls; MDX device integration remains explicitly simulated.
+- Desktop/Tauri service startup and frontend wiring remain future Phase 2 work.
+
 ## Phase 3 — Native GROMACS integration
 
 `grompp`, `mdrun`, status, stop, logs, and parsed progress.

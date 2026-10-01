@@ -103,6 +103,25 @@ jobs:
       - name: Protocol JSON Schema is up to date
         run: pnpm --filter @mdx-studio/protocol exec tsx scripts/emit-schema.ts --check
 
+  # WSL/Linux runtime service. Tool flags live in services/runtime/pyproject.toml.
+  python-runtime:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/runtime
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: services/runtime/pyproject.toml
+      - run: python -m pip install -e '.[dev]'
+      - run: python -m pytest
+      - run: ruff format --check .
+      - run: ruff check .
+      - run: mypy
+
   # Linux validation of the Tauri crate. Not evidence of Windows compatibility.
   rust-checks-linux:
     runs-on: ubuntu-latest
