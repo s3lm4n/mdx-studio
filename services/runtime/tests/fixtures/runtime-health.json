@@ -1,0 +1,8 @@
+{
+  "status": "ok",
+  "protocolVersion": "0.1.0",
+  "runtimeVersion": "0.1.0",
+  "implementation": "mdx-runtime-python",
+  "origin": "measured",
+  "checkedAt": "2026-10-01T12:00:00Z"
+}

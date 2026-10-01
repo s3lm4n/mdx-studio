@@ -1,0 +1,19 @@
+{
+  "protocolVersion": "0.1.0",
+  "origin": "measured",
+  "runModes": [],
+  "supportsStop": false,
+  "supportsPause": false,
+  "gromacs": {
+    "name": "GROMACS",
+    "detected": true,
+    "version": "2026.1",
+    "origin": "measured",
+    "detail": "Detected /opt/gromacs/bin/gmx version 2026.1; precision mixed, MPI thread_mpi, GPU CUDA, GPU FFT cuFFT, SIMD AVX2_256, CUDA runtime 12.60."
+  },
+  "mdxDevice": {
+    "integration": "mock",
+    "origin": "simulated"
+  },
+  "mdxProfiles": []
+}
