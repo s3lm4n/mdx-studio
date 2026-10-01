@@ -1,82 +1,57 @@
-import type { JobRecord, TelemetrySnapshot } from "@mdx-studio/protocol";
-import {
-  Badge,
-  Button,
-  Callout,
-  Field,
-  KeyValueList,
-  LineChart,
-  MetricTile,
-  OriginBadge,
-  Panel,
-  ProgressBar,
-} from "@mdx-studio/ui";
+import type { JobRecord } from "@mdx-studio/protocol";
+import { isMockRuntime } from "@mdx-studio/runtime-client";
+import { Callout } from "@mdx-studio/ui";
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useRuntime } from "../../app/runtime-context";
 import { useJobEvents, useJobs, useTelemetry } from "../../hooks/use-live";
-import {
-  formatBytes,
-  formatDuration,
-  formatNs,
-  formatPercent,
-  formatTimestamp,
-} from "../../services/format";
+import { isLiveJob, orderJobs, sampleInterval, series } from "../../services/telemetry";
 import { ErrorNotice, PageHeader } from "../common";
-import { DeviceStateBadge, JobStateBadge } from "../state-tone";
+import { DashLink } from "../dashboard/DashLink";
+import { EventLogPanel } from "./EventLogPanel";
+import { HardwarePanel } from "./HardwarePanel";
+import { HostPanel } from "./HostPanel";
+import { MdxPipelinePanel } from "./MdxPipelinePanel";
+import { MonitorIdle } from "./MonitorIdle";
+import { SimulationHero } from "./SimulationHero";
+import { ThermoPanel } from "./ThermoPanel";
+import { TracePanel } from "./TracePanel";
+import { RunControls } from "./RunControls";
+import "./monitor.css";
 
-const TERMINAL = ["COMPLETED", "FAILED", "ABORTED"];
-
-function sortedJobs(jobs: readonly JobRecord[]): JobRecord[] {
-  return [...jobs].sort((a, b) => {
-    const aLive = TERMINAL.includes(a.state) ? 1 : 0;
-    const bLive = TERMINAL.includes(b.state) ? 1 : 0;
-    return aLive - bLive || b.createdAt.localeCompare(a.createdAt);
-  });
-}
-
-function pick(
-  history: readonly TelemetrySnapshot[],
-  select: (snapshot: TelemetrySnapshot) => number | null | undefined,
-): number[] {
-  return history.flatMap((snapshot) => {
-    const value = select(snapshot);
-    return value === null || value === undefined ? [] : [value];
-  });
-}
-
+/**
+ * Live monitor for one run, recomposed in the Patina language. It plots exactly what the runtime
+ * sends; the only client-side processing is the labelled window statistics.
+ */
 export function MonitorView() {
   const runtime = useRuntime();
   const [params, setParams] = useSearchParams();
   const { jobs, loaded } = useJobs();
-  const ordered = sortedJobs(jobs);
+  const ordered = orderJobs(jobs);
   const requested = params.get("job");
-  const job = ordered.find((entry) => entry.id === requested) ?? ordered[0];
+  const liveJob = ordered.find(isLiveJob);
+  // The run being followed automatically. It stays on screen after it ends (so a stop or a
+  // fault is visible), but a newly started live run takes over.
+  const [followedId, setFollowedId] = useState<string | null>(null);
+  if (requested === null && liveJob !== undefined && liveJob.id !== followedId) {
+    setFollowedId(liveJob.id);
+  }
+  // Explicit selection wins; then the live run; then the run that was being followed. Never
+  // default to an arbitrary finished run.
+  const job =
+    requested === null
+      ? (liveJob ?? ordered.find((candidate) => candidate.id === followedId))
+      : ordered.find((candidate) => candidate.id === requested);
 
   const history = useTelemetry(job?.id);
   const events = useJobEvents(job?.id);
-  const [confirmingStop, setConfirmingStop] = useState(false);
   const [stopError, setStopError] = useState<Error>();
 
-  if (!loaded) return <p className="mdx-muted">Loading jobs&hellip;</p>;
-  if (job === undefined) {
-    return (
-      <div className="stack">
-        <PageHeader title="Monitor" />
-        <Callout tone="info" title="No runs to monitor">
-          Start a simulation from{" "}
-          <Link className="link" to="/simulation/setup">
-            Simulation
-          </Link>{" "}
-          to see live telemetry.
-        </Callout>
-      </div>
-    );
-  }
+  if (!loaded) return <p className="mdx-muted">Loading runs…</p>;
 
   const latest = history[history.length - 1];
-  const sim = latest?.simulation ?? null;
-  const canStop = job.allowedActions.includes("stop");
+  const interval = sampleInterval(history);
+  const live = job?.state === "RUNNING";
 
   async function stop(target: JobRecord) {
     setStopError(undefined);
@@ -84,295 +59,143 @@ export function MonitorView() {
       await runtime.stopJob(target.id);
     } catch (error: unknown) {
       setStopError(error instanceof Error ? error : new Error(String(error)));
-    } finally {
-      setConfirmingStop(false);
     }
   }
 
+  const controls = (
+    <RunControls
+      jobs={ordered}
+      selected={job}
+      onSelect={(jobId) => {
+        setParams({ job: jobId });
+      }}
+      onStop={stop}
+    />
+  );
+
   return (
-    <div className="stack">
+    <div className="stack mon">
       <PageHeader
+        eyebrow="Live monitor"
         title="Monitor"
-        origin={job.origin}
+        {...(job === undefined ? {} : { origin: job.origin })}
         subtitle={
-          <>
-            <span className="mdx-mono">{job.id}</span> &middot; {job.request.runMode} &middot;{" "}
-            {job.request.projectId} / {job.request.stage} &middot;{" "}
-            <Link className="link" to={`/runs/${job.runId}`}>
-              provenance
-            </Link>
-          </>
+          job === undefined ? undefined : (
+            <span className="mon-subtitle">
+              <span className="mdx-mono">{job.id}</span>
+              <span>
+                {job.request.runMode} · {job.request.projectId} / {job.request.stage}
+              </span>
+              <DashLink to={`/runs/${job.runId}`}>Provenance</DashLink>
+            </span>
+          )
         }
-        actions={
-          <>
-            <JobStateBadge state={job.state} />
-            {canStop ? (
-              confirmingStop ? (
-                <>
-                  <Button
-                    variant="danger"
-                    onClick={() => {
-                      void stop(job);
-                    }}
-                  >
-                    Confirm stop
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setConfirmingStop(false);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  variant="danger"
-                  onClick={() => {
-                    setConfirmingStop(true);
-                  }}
-                >
-                  Stop run
-                </Button>
-              )
-            ) : null}
-          </>
-        }
+        actions={controls}
       />
 
       {stopError === undefined ? null : (
         <ErrorNotice error={stopError} title="Could not stop the run" />
       )}
-
-      {job.failure === null ? null : (
+      {job?.failure == null ? null : (
         <Callout tone="fail" title="Run failed" role="alert">
           {job.failure.message}
         </Callout>
       )}
 
-      <Panel title="Select run">
-        <Field label="Run">
-          <select
-            className="mdx-select"
-            value={job.id}
-            onChange={(event) => {
-              setParams({ job: event.target.value });
-              setConfirmingStop(false);
-            }}
-          >
-            {ordered.map((entry) => (
-              <option key={entry.id} value={entry.id}>
-                {entry.id} &mdash; {entry.request.runMode} {entry.request.stage} ({entry.state})
-              </option>
-            ))}
-          </select>
-        </Field>
-      </Panel>
+      {job === undefined ? (
+        <MonitorIdle demoRuntime={isMockRuntime(runtime)} pastRuns={ordered.length} />
+      ) : (
+        <div className="mon-grid">
+          <SimulationHero job={job} progress={latest?.simulation ?? null} latest={latest} />
+          <TracePanel
+            title="Throughput"
+            description="Trajectory ns per wall-clock day"
+            className="mon-throughput"
+            values={series(history, (s) => s.simulation?.nsPerDay)}
+            unit="ns/day"
+            precision={0}
+            minRelativeSpan={0.06}
+            chartHeight={236}
+            live={live}
+            interval={interval}
+            origin={latest?.origin ?? job.origin}
+          />
 
-      <Panel
-        title="Simulation"
-        actions={latest === undefined ? null : <OriginBadge origin={latest.origin} />}
-      >
-        {sim === null ? (
-          <p className="mdx-muted" style={{ margin: 0 }} role="status">
-            Waiting for telemetry (job is {job.state}).
-          </p>
-        ) : (
-          <div className="stack">
-            <ProgressBar
-              label="Progress"
-              value={sim.progress}
-              detail={`${formatNs(sim.timeNs)} / ${formatNs(sim.targetTimeNs)} ns · ${formatPercent(sim.progress)}`}
-            />
-            <div className="grid grid--4">
-              <MetricTile label="Step" value={sim.step.toLocaleString("en-US")} />
-              <MetricTile
-                label="Simulation time"
-                value={formatNs(sim.timeNs)}
-                unit="ns"
-                hint={`target ${formatNs(sim.targetTimeNs)} ns`}
-              />
-              <MetricTile label="Throughput" value={sim.nsPerDay.toFixed(0)} unit="ns/day" />
-              <MetricTile label="ETA" value={formatDuration(sim.etaSeconds)} />
-            </div>
-          </div>
-        )}
-      </Panel>
-
-      {latest?.gromacs == null ? null : (
-        <Panel title="GROMACS" actions={<OriginBadge origin={latest.origin} />}>
-          <div className="grid grid--4">
-            <LineChart
-              title="Temperature"
-              unit="K"
-              precision={2}
-              series={[{ label: "T", values: pick(history, (s) => s.gromacs?.temperatureK) }]}
-            />
-            <LineChart
-              title="Pressure"
-              unit="bar"
-              precision={0}
-              series={[{ label: "P", values: pick(history, (s) => s.gromacs?.pressureBar) }]}
-            />
-            <LineChart
-              title="Potential energy"
-              unit="kJ/mol"
-              precision={0}
-              series={[
-                { label: "Epot", values: pick(history, (s) => s.gromacs?.potentialEnergyKJMol) },
-              ]}
-            />
-            <LineChart
-              title="Total energy"
-              unit="kJ/mol"
-              precision={0}
-              series={[
-                { label: "Etot", values: pick(history, (s) => s.gromacs?.totalEnergyKJMol) },
-              ]}
-            />
-          </div>
-          <div style={{ marginTop: 12 }}>
-            <KeyValueList
-              items={[
+          {latest?.gromacs == null ? null : (
+            <ThermoPanel
+              live={live}
+              interval={interval}
+              origin={latest.origin}
+              neighborListRebuilds={latest.gromacs.neighborListRebuilds}
+              channels={[
                 {
-                  label: "Neighbor-list rebuilds",
-                  value: latest.gromacs.neighborListRebuilds.toLocaleString("en-US"),
-                  mono: true,
+                  label: "Temperature",
+                  unit: "K",
+                  precision: 2,
+                  values: series(history, (s) => s.gromacs?.temperatureK),
+                },
+                {
+                  label: "Pressure",
+                  unit: "bar",
+                  precision: 1,
+                  values: series(history, (s) => s.gromacs?.pressureBar),
+                },
+                {
+                  label: "Potential energy",
+                  unit: "kJ/mol",
+                  precision: 0,
+                  values: series(history, (s) => s.gromacs?.potentialEnergyKJMol),
+                },
+                {
+                  label: "Total energy",
+                  unit: "kJ/mol",
+                  precision: 0,
+                  values: series(history, (s) => s.gromacs?.totalEnergyKJMol),
                 },
               ]}
             />
-          </div>
-        </Panel>
-      )}
+          )}
 
-      {latest?.mdx == null ? null : (
-        <Panel title="MDX" actions={<OriginBadge origin={latest.origin} />}>
-          <div className="stack">
-            <div className="row">
-              <DeviceStateBadge state={latest.mdx.deviceState} />
-              <Badge tone={latest.mdx.watchdog === "TRIPPED" ? "fail" : "neutral"}>
-                Watchdog {latest.mdx.watchdog}
-              </Badge>
-              <Badge tone={latest.mdx.errorCount > 0 ? "fail" : "pass"}>
-                {latest.mdx.errorCount} errors
-              </Badge>
-            </div>
-            <div className="grid grid--4">
-              <LineChart
-                title="Utilization"
-                unit="%"
-                yDomain={[0, 100]}
-                series={[
-                  {
-                    label: "util",
-                    values: pick(history, (s) => (s.mdx === null ? null : s.mdx.utilization * 100)),
-                  },
-                ]}
-              />
-              <LineChart
-                title="Pair throughput"
-                unit="Gpairs/s"
-                series={[
-                  {
-                    label: "pairs",
-                    values: pick(history, (s) => s.mdx?.pairThroughputGPairsPerSecond),
-                  },
-                ]}
-              />
-              <LineChart
-                title="Queue occupancy"
-                unit="%"
-                yDomain={[0, 100]}
-                series={[
-                  {
-                    label: "queue",
-                    values: pick(history, (s) =>
-                      s.mdx === null ? null : s.mdx.queueOccupancy * 100,
-                    ),
-                  },
-                ]}
-              />
-              <LineChart
-                title="Backpressure"
-                unit="%"
-                yDomain={[0, 100]}
-                series={[
-                  {
-                    label: "bp",
-                    values: pick(history, (s) =>
-                      s.mdx === null ? null : s.mdx.backpressure * 100,
-                    ),
-                  },
-                ]}
-              />
-            </div>
-          </div>
-        </Panel>
-      )}
+          {latest?.mdx == null ? null : (
+            <MdxPipelinePanel
+              mdx={latest.mdx}
+              pairThroughput={series(history, (s) => s.mdx?.pairThroughputGPairsPerSecond)}
+              live={live}
+              interval={interval}
+              origin={latest.origin}
+            />
+          )}
+          {latest?.hardware == null ? null : (
+            <HardwarePanel
+              hardware={latest.hardware}
+              temperature={series(history, (s) => s.hardware?.temperatureC)}
+              power={series(history, (s) => s.hardware?.powerW)}
+              live={live}
+              interval={interval}
+              origin={latest.origin}
+            />
+          )}
+          {latest?.mdx === null && job.request.runMode === "native" ? (
+            <p className="mon-note">
+              Native GROMACS run: the MDX pipeline and accelerator are not involved.{" "}
+              <Link className="link" to="/devices">
+                Device status
+              </Link>
+            </p>
+          ) : null}
 
-      {latest?.hardware == null ? null : (
-        <Panel title="Hardware" actions={<OriginBadge origin={latest.origin} />}>
-          <div className="grid grid--4">
-            <LineChart
-              title="Device temperature"
-              unit="°C"
-              series={[{ label: "T", values: pick(history, (s) => s.hardware?.temperatureC) }]}
+          <EventLogPanel events={events} />
+          {latest === undefined ? null : (
+            <HostPanel
+              host={latest.host}
+              cpu={series(history, (s) => s.host.cpuUtilization * 100)}
+              live={live}
+              interval={interval}
+              origin={latest.origin}
             />
-            <LineChart
-              title="Power"
-              unit="W"
-              series={[{ label: "P", values: pick(history, (s) => s.hardware?.powerW) }]}
-            />
-            <MetricTile label="Clock" value={latest.hardware.clockMHz} unit="MHz" />
-            <MetricTile
-              label="PCIe link"
-              value={`Gen${latest.hardware.pcieLink.generation} x${latest.hardware.pcieLink.lanes}`}
-              hint={`link ${latest.hardware.pcieLink.status}`}
-              tone={latest.hardware.pcieLink.status === "up" ? undefined : "warn"}
-            />
-          </div>
-        </Panel>
+          )}
+        </div>
       )}
-
-      {latest === undefined ? null : (
-        <Panel title="Host" actions={<OriginBadge origin={latest.origin} />}>
-          <div className="grid grid--4">
-            <LineChart
-              title="CPU"
-              unit="%"
-              yDomain={[0, 100]}
-              series={[{ label: "cpu", values: pick(history, (s) => s.host.cpuUtilization * 100) }]}
-            />
-            <MetricTile
-              label="Memory"
-              value={formatBytes(latest.host.memoryUsedBytes)}
-              hint={`of ${formatBytes(latest.host.memoryTotalBytes)}`}
-            />
-            <MetricTile label="GPU" value="—" hint="not reported yet" />
-          </div>
-        </Panel>
-      )}
-
-      <Panel title="Event log" flush>
-        {events.length === 0 ? (
-          <p className="mdx-muted" style={{ padding: 16, margin: 0 }}>
-            No events yet.
-          </p>
-        ) : (
-          <ol className="event-log" aria-label="Job events">
-            {events.map((event) => (
-              <li key={event.sequence}>
-                <span className="mdx-faint">{formatTimestamp(event.timestamp)}</span>{" "}
-                {event.type === "state-changed"
-                  ? `${event.from} → ${event.to}${event.reason === null ? "" : ` (${event.reason})`}`
-                  : event.type === "log"
-                    ? event.message
-                    : `ERROR ${event.error.message}`}
-              </li>
-            ))}
-          </ol>
-        )}
-      </Panel>
     </div>
   );
 }

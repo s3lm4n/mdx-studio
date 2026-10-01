@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { DEFAULT_SCENARIO, ManualClock, MockRuntimeClient, SCENARIOS, SCENARIO_IDS } from "../src";
 import { createRuntime } from "./helpers";
 
-describe("nominal demo scenario reference values", () => {
+describe("demo-run scenario reference values", () => {
   it("shows the documented monitor reference run: 104.962 / 300 ns, ~34.99 %, ~1700 ns/day", async () => {
-    const { runtime } = createRuntime("nominal");
+    const { runtime } = createRuntime("demo-run");
     const running = (await runtime.listJobs()).find((job) => job.state === "RUNNING");
     expect(running).toBeDefined();
     const history = await runtime.getTelemetryHistory(running?.id ?? "");
@@ -19,7 +20,7 @@ describe("nominal demo scenario reference values", () => {
   });
 
   it("pre-rolls rolling history so charts are populated at first render", async () => {
-    const { runtime } = createRuntime("nominal");
+    const { runtime } = createRuntime("demo-run");
     const job = (await runtime.listJobs()).find((j) => j.state === "RUNNING");
     const history = await runtime.getTelemetryHistory(job?.id ?? "");
     expect(history.length).toBeGreaterThanOrEqual(100);
@@ -32,8 +33,8 @@ describe("nominal demo scenario reference values", () => {
   });
 
   it("is deterministic across instances", async () => {
-    const a = createRuntime("nominal");
-    const b = createRuntime("nominal");
+    const a = createRuntime("demo-run");
+    const b = createRuntime("demo-run");
     const jobA = (await a.runtime.listJobs()).find((j) => j.state === "RUNNING");
     const jobB = (await b.runtime.listJobs()).find((j) => j.state === "RUNNING");
     expect(await a.runtime.getTelemetryHistory(jobA?.id ?? "", 5)).toEqual(
@@ -41,5 +42,27 @@ describe("nominal demo scenario reference values", () => {
     );
     a.runtime.dispose();
     b.runtime.dispose();
+  });
+});
+
+describe("default demo state", () => {
+  it("starts idle: no queued or running job and a READY device, so nothing looks like a live run", async () => {
+    const runtime = new MockRuntimeClient({ clock: new ManualClock() });
+    expect(runtime.scenario.id).toBe(DEFAULT_SCENARIO);
+    expect(DEFAULT_SCENARIO).toBe("idle");
+    const live = (await runtime.listJobs()).filter(
+      (job) => !["COMPLETED", "FAILED", "ABORTED"].includes(job.state),
+    );
+    expect(live).toEqual([]);
+    expect((await runtime.getDeviceStatus()).state).toBe("READY");
+    runtime.dispose();
+  });
+
+  it("keeps the in-progress demo run available as an explicit, opt-in scenario", async () => {
+    expect(SCENARIO_IDS).toContain("demo-run");
+    expect(SCENARIOS["demo-run"].label).toMatch(/demo run/i);
+    const { runtime } = createRuntime("demo-run");
+    expect((await runtime.listJobs()).some((job) => job.state === "RUNNING")).toBe(true);
+    runtime.dispose();
   });
 });

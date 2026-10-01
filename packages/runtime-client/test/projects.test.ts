@@ -70,7 +70,7 @@ describe("projects and MDP files", () => {
   });
 
   it("lists runs newest-first and filters by project", async () => {
-    const { runtime } = createRuntime("nominal");
+    const { runtime } = createRuntime("demo-run");
     const all = await runtime.listRuns();
     const starts = all.map((r) => r.startedAt);
     expect([...starts].sort().reverse()).toEqual(starts);
@@ -82,7 +82,7 @@ describe("projects and MDP files", () => {
 
 describe("provenance records", () => {
   it("record structured commands, hashes and versions without being an input anywhere", async () => {
-    const { runtime } = createRuntime("nominal");
+    const { runtime } = createRuntime("demo-run");
     const run = (await runtime.listRuns()).find((r) => r.status === "running");
     const provenance = await runtime.getProvenance(run?.runId ?? "");
     expect(provenance.commands.length).toBeGreaterThanOrEqual(2);

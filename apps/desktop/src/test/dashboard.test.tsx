@@ -15,7 +15,7 @@ describe("Dashboard", () => {
   });
 
   it("lists recent runs with links to provenance", async () => {
-    renderApp("/");
+    renderApp("/", { scenario: "demo-run" });
     const table = await screen.findByRole("table", { name: "Recent runs" });
     const links = await within(table).findAllByRole("link", { name: /^run-demo-/ });
     expect(links.length).toBeGreaterThanOrEqual(5);
@@ -23,7 +23,7 @@ describe("Dashboard", () => {
   });
 
   it("shows the active demo run progress", async () => {
-    renderApp("/");
+    renderApp("/", { scenario: "demo-run" });
     const active = await screen.findByRole("region", { name: "Active run" });
     const bar = await within(active).findByRole("progressbar", { name: "Simulation" });
     expect(Number(bar.getAttribute("aria-valuenow"))).toBeCloseTo(34.99, 1);

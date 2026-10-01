@@ -1,5 +1,5 @@
 import type { DeviceState, JobState, RunStatus, StageStatus } from "@mdx-studio/protocol";
-import { Badge, type BadgeTone } from "@mdx-studio/ui";
+import { Badge, type BadgeAppearance, type BadgeTone } from "@mdx-studio/ui";
 
 const JOB_TONE: Record<JobState, BadgeTone> = {
   CREATED: "neutral",
@@ -37,34 +37,59 @@ const STAGE_TONE: Record<StageStatus, BadgeTone> = {
   failed: "fail",
 };
 
-export function JobStateBadge({ state }: { state: JobState }) {
-  return <Badge tone={JOB_TONE[state]}>{state}</Badge>;
+interface AppearanceProp {
+  /** `plain` renders glyph + word without a chip (for status lines inside cards and tables). */
+  appearance?: BadgeAppearance;
 }
 
-export function DeviceStateBadge({ state }: { state: DeviceState }) {
-  return <Badge tone={DEVICE_TONE[state]}>{state}</Badge>;
+export function JobStateBadge({ state, appearance }: { state: JobState } & AppearanceProp) {
+  return (
+    <Badge tone={JOB_TONE[state]} {...(appearance === undefined ? {} : { appearance })}>
+      {state}
+    </Badge>
+  );
 }
 
-export function RunStatusBadge({ status }: { status: RunStatus }) {
-  return <Badge tone={RUN_TONE[status]}>{status}</Badge>;
+export function DeviceStateBadge({ state, appearance }: { state: DeviceState } & AppearanceProp) {
+  return (
+    <Badge tone={DEVICE_TONE[state]} {...(appearance === undefined ? {} : { appearance })}>
+      {state}
+    </Badge>
+  );
+}
+
+export function RunStatusBadge({ status, appearance }: { status: RunStatus } & AppearanceProp) {
+  return (
+    <Badge tone={RUN_TONE[status]} {...(appearance === undefined ? {} : { appearance })}>
+      {status}
+    </Badge>
+  );
 }
 
 export function StageStatusBadge({ status }: { status: StageStatus }) {
   return <Badge tone={STAGE_TONE[status]}>{status}</Badge>;
 }
 
+export type ValidationStatusValue = "not-run" | "pending" | "passed" | "failed";
+
+export const VALIDATION_TONE: Record<ValidationStatusValue, BadgeTone> = {
+  passed: "pass",
+  failed: "fail",
+  pending: "info",
+  "not-run": "neutral",
+};
+
+export function validationLabel(status: ValidationStatusValue): string {
+  return status === "not-run" ? "not run" : status;
+}
+
 export function ValidationStatusBadge({
   status,
-}: {
-  status: "not-run" | "pending" | "passed" | "failed";
-}) {
-  const tone: BadgeTone =
-    status === "passed"
-      ? "pass"
-      : status === "failed"
-        ? "fail"
-        : status === "pending"
-          ? "info"
-          : "neutral";
-  return <Badge tone={tone}>{status === "not-run" ? "not run" : status}</Badge>;
+  appearance,
+}: { status: ValidationStatusValue } & AppearanceProp) {
+  return (
+    <Badge tone={VALIDATION_TONE[status]} {...(appearance === undefined ? {} : { appearance })}>
+      {validationLabel(status)}
+    </Badge>
+  );
 }

@@ -80,9 +80,16 @@ Individual scripts: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `p
 Rust checks (from `apps/desktop/src-tauri`): `cargo fmt --check`, `cargo clippy --locked -- -D
 warnings`, `cargo test --locked`.
 
-The demo starts in the **Nominal** scenario: a simulated MDX run is in progress at 104.962 / 300 ns.
-Use **Settings → Demo runtime controls** to switch scenarios (idle, degraded, device missing,
-device fault, validation mismatch) or inject a simulated device fault.
+The demo starts **idle**: the simulated device is ready and no run is in progress, so a fresh launch
+never looks like a real active run. The disclosure ribbon always names the active demo scenario. Use
+**Settings → Demo runtime controls** (or "Change" in the ribbon) to switch scenarios — **Demo run in
+progress** (a seeded, simulated MDX run at ~105 / 300 ns), degraded device, device missing, device
+fault, validation mismatch — or inject a simulated device fault. A seeded run is marked "Simulated
+run" wherever it appears as live.
+
+The app icon and the in-app brand mark are generated from one geometry module
+(`apps/desktop/src/brand/mark.ts`); after changing it, run `pnpm --filter @mdx-studio/desktop
+brand:icons` to regenerate `src-tauri/icons/*` and the favicon (a test fails if they drift).
 
 ## Project structure
 
@@ -107,9 +114,10 @@ scripts/                      Windows / WSL diagnostics
 - No WSL2 runtime service; no real GROMACS discovery, `grompp`/`mdrun` execution or log streaming.
 - Validation profile numbers in the demo are **placeholders**, not qualified tolerances.
 - Creating projects, pausing jobs, GPU selection and preset diffs are not implemented.
-- Installer packaging is disabled; the Tauri identifier and icon are placeholders.
-- Linux-only validation so far: the Windows + WSL2 path, WebView2 rendering and the Windows Tauri
-  build have **not** been tested. A `windows-latest` CI job is defined but unproven until it runs.
+- Installer packaging is disabled; the Tauri identifier is a placeholder.
+- Windows: the `windows-latest` CI job (lint, typecheck, tests, build, `tauri build --no-bundle`)
+  passes, and the owner reports running the Tauri app on Windows 11. WSL2 and the runtime boundary are
+  untested (Phase 2). See [`docs/VALIDATION_STATUS.md`](docs/VALIDATION_STATUS.md).
 
 ## Roadmap
 

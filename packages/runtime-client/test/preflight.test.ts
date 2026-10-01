@@ -70,7 +70,7 @@ describe("pre-flight gating is runtime-owned", () => {
   });
 
   it("blocks a second MDX run while the device is busy, but not native runs", async () => {
-    const { runtime } = createRuntime("nominal");
+    const { runtime } = createRuntime("demo-run");
     const mdx = await runtime.runPreflight(mdxRequest());
     expect(mdx.startPermitted).toBe(false);
     expect(mdx.blockingCheckIds).toContain("device-ready");

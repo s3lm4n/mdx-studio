@@ -5,31 +5,35 @@ import { useRuntime } from "../app/runtime-context";
 const MAX_TELEMETRY = 300;
 const MAX_EVENTS = 200;
 
-/** All jobs, kept current from runtime job-change notifications. */
+/**
+ * All jobs, kept current from runtime job-change notifications. State is keyed by the runtime
+ * instance, so a replaced runtime (e.g. a demo reset) never shows the previous runtime's jobs.
+ */
 export function useJobs(): { jobs: JobRecord[]; loaded: boolean } {
   const runtime = useRuntime();
-  const [jobs, setJobs] = useState<JobRecord[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [state, setState] = useState<{ runtime: object; jobs: JobRecord[]; loaded: boolean }>();
 
   useEffect(() => {
     let active = true;
     const unsubscribe = runtime.subscribeJobs((updated) => {
-      setJobs((current) => {
-        const index = current.findIndex((job) => job.id === updated.id);
-        if (index < 0) return [...current, updated];
-        const next = current.slice();
-        next[index] = updated;
-        return next;
+      setState((prev) => {
+        const current = prev?.runtime === runtime ? prev : { runtime, jobs: [], loaded: false };
+        const index = current.jobs.findIndex((job) => job.id === updated.id);
+        const jobs =
+          index < 0
+            ? [...current.jobs, updated]
+            : current.jobs.map((job, i) => (i === index ? updated : job));
+        return { ...current, jobs };
       });
     });
     void runtime.listJobs().then((initial) => {
       if (!active) return;
-      setJobs((current) => {
+      setState((prev) => {
+        const current = prev?.runtime === runtime ? prev.jobs : [];
         const byId = new Map(initial.map((job) => [job.id, job]));
         for (const job of current) byId.set(job.id, job);
-        return [...byId.values()];
+        return { runtime, jobs: [...byId.values()], loaded: true };
       });
-      setLoaded(true);
     });
     return () => {
       active = false;
@@ -37,7 +41,9 @@ export function useJobs(): { jobs: JobRecord[]; loaded: boolean } {
     };
   }, [runtime]);
 
-  return { jobs, loaded };
+  return state?.runtime === runtime
+    ? { jobs: state.jobs, loaded: state.loaded }
+    : { jobs: EMPTY, loaded: false };
 }
 
 export function useDeviceStatus(): MdxDeviceStatus | undefined {

@@ -73,6 +73,38 @@ avoid a dependency and keep rendering testable. Design tokens support dark/light
 
 ## ADR-015 — Placeholders
 
-The Tauri identifier `com.mdxstudio.desktop` and the app icon are placeholders pending a real domain and
-brand assets. Bundling is disabled (`bundle.active=false`) until Windows packaging is validated.
+The Tauri identifier `com.mdxstudio.desktop` is a placeholder pending a real domain (the app icon was
+replaced by the brand mark, ADR-017). Bundling is disabled (`bundle.active=false`) until Windows packaging is validated.
 Validation-profile numbers in the mock are placeholders and labelled as such.
+
+## ADR-016 — "Patina" visual design language
+
+The dark theme follows `docs/DESIGN_LANGUAGE.md`: warm obsidian surfaces, bronze reserved for brand
+and interaction, bronze vs verdigris as the semantic MDX-vs-native pair, a smoked-plum trace for
+standalone telemetry, and reserved status colours with glyphs. Simulated provenance is marked by text
+and a ◆ glyph over a deliberately faint hatch that nothing else may use. Gauges and meters show
+bounded fractions only; no limits or redlines are drawn until the runtime supplies them. Geist and
+Geist Mono are vendored (SIL OFL 1.1) so rendering is identical offline and under the Tauri CSP.
+Motifs are deterministic SVG, never raster or WebGL. Light-theme parity is deferred.
+
+## ADR-017 — Brand mark and generated app icons
+
+The brand mark is an isometric periodic unit cell (the simulation box) drawn as a bronze lattice with
+translucent faces and a single particle. One pure module, `apps/desktop/src/brand/mark.ts`, defines
+its geometry and colours; the sidebar renders it as SVG and a dependency-free Node script
+(`apps/desktop/scripts/brand`, `pnpm --filter @mdx-studio/desktop brand:icons`) rasterises it with
+supersampling into `icon.ico` (16–256 px, BMP entries below 256 and PNG at 256), the PNG set,
+`icon.icns` and the favicon. Small sizes are drawn, not downscaled: edges are snapped to whole
+device pixels and the particle is omitted where it would blur. Generated files are committed so a
+build needs no extra tooling; a test re-renders every entry and fails on any pixel drift. Tauri
+compiles the first `.ico` into the Windows executable (taskbar, title bar, Alt-Tab); on Linux and
+macOS the window icon is the first PNG in `bundle.icon`, so `128x128@2x.png` is listed first —
+GTK on X11 silently drops a 512 px icon (`_NET_WM_ICON` size limit), which a test also pins.
+
+## ADR-018 — Demo runtime starts idle
+
+The mock runtime's default scenario is `idle` (device ready, no jobs), so a fresh launch never
+resembles a real active run. The in-progress demo is the explicit `demo-run` scenario, selectable in
+Settings → Demo runtime controls and linked from the idle Dashboard and Monitor. The disclosure
+ribbon keeps its text and adds the active scenario's name; a seeded run carries a "Simulated run"
+notice wherever it is shown as live. No protocol change: scenarios remain mock-only API.

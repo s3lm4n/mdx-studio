@@ -1,89 +1,272 @@
 /*
- * MDX Studio design tokens. Restrained scientific/HPC workstation look: neutral slate surfaces,
- * one cool accent, semantic status colours. Dark is the default; light via [data-theme="light"].
- * Status is never conveyed by colour alone (components always render a text label).
+ * MDX Studio design tokens — "Patina" (see docs/DESIGN_LANGUAGE.md).
+ *
+ * Two layers:
+ *   --p-*   primitive palette. Only this file references them.
+ *   --mdx-* semantic tokens. Components consume these and nothing else.
+ *
+ * Dark (obsidian / espresso / bronze) is the art-directed theme. The light block keeps every semantic
+ * token defined so the app stays usable, but light parity is deferred (DESIGN_LANGUAGE.md §10).
+ * Status is never conveyed by colour alone (components always render a glyph and a text label).
  */
+:root {
+  /* Obsidian, warm-tinted */
+  --p-obsidian-0: #0a0908;
+  --p-obsidian-1: #0b0908;
+  --p-obsidian-2: #0d0b0a;
+  --p-obsidian-3: #110f0e;
+  --p-obsidian-4: #141110;
+  --p-obsidian-5: #1b1714;
+  --p-obsidian-6: #221d19;
+  --p-obsidian-7: #2b2520;
+
+  /* Ivory ink */
+  --p-ivory-100: #eee7de;
+  --p-ivory-300: #d8cfc4;
+  --p-ivory-500: #a99e92;
+  --p-ivory-700: #958b80;
+  --p-ivory-rgb: 232, 208, 180;
+
+  /* Espresso / smoked brown (atmosphere only) */
+  --p-espresso-rgb: 120, 72, 36;
+  --p-smoke-rgb: 62, 44, 32;
+
+  /* Bronze */
+  --p-bronze-300: #e3c08f;
+  --p-bronze-400: #d19e5e;
+  --p-bronze-500: #c1843c;
+  --p-bronze-600: #9a6630;
+  --p-bronze-800: #3a2616;
+  --p-bronze-rgb: 193, 132, 60;
+
+  /* Data hues (validated: docs/DESIGN_LANGUAGE.md §3) */
+  --p-verdigris-500: #1fa38f;
+  --p-plum-500: #9a7ccb;
+  --p-plum-rgb: 154, 124, 203;
+  --p-rose-500: #c45f86;
+  --p-champagne-400: #d9ae74;
+
+  /* Status */
+  --p-sage-400: #8fbf72;
+  --p-sulfur-400: #e2b340;
+  --p-cinnabar-400: #e5654b;
+  --p-periwinkle-300: #9a9fe6;
+}
+
 :root,
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --mdx-bg: #0e1116;
-  --mdx-surface: #151a21;
-  --mdx-surface-raised: #1b212a;
-  --mdx-surface-sunken: #11151b;
-  --mdx-border: #262d38;
-  --mdx-border-strong: #364051;
-  --mdx-text: #e3e8ef;
-  --mdx-text-muted: #98a3b3;
-  --mdx-text-faint: #6f7a8b;
-  --mdx-accent: #4aa8d8;
-  --mdx-accent-strong: #2f8fc2;
-  --mdx-accent-contrast: #06141d;
-  --mdx-accent-soft: rgba(74, 168, 216, 0.14);
-  --mdx-pass: #46b882;
-  --mdx-pass-soft: rgba(70, 184, 130, 0.14);
-  --mdx-warn: #e3ab3f;
-  --mdx-warn-soft: rgba(227, 171, 63, 0.15);
-  --mdx-fail: #ea5d55;
-  --mdx-fail-soft: rgba(234, 93, 85, 0.15);
-  --mdx-info: #6d9eeb;
-  --mdx-info-soft: rgba(109, 158, 235, 0.15);
-  --mdx-demo: #d99a2b;
-  --mdx-demo-soft: rgba(217, 154, 43, 0.16);
-  --mdx-chart-1: #4aa8d8;
-  --mdx-chart-2: #46b882;
-  --mdx-chart-3: #e3ab3f;
-  --mdx-chart-4: #b98ae8;
-  --mdx-chart-grid: #232a34;
-  --mdx-focus: #7cc4ea;
-  --mdx-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+
+  /* Surfaces */
+  --mdx-bg: var(--p-obsidian-0);
+  --mdx-shell: var(--p-obsidian-2);
+  --mdx-surface: var(--p-obsidian-4);
+  --mdx-surface-low: var(--p-obsidian-3);
+  --mdx-surface-raised: var(--p-obsidian-5);
+  --mdx-surface-raised-2: var(--p-obsidian-6);
+  --mdx-surface-sunken: var(--p-obsidian-1);
+  --mdx-card-gradient: linear-gradient(180deg, var(--p-obsidian-4) 0%, var(--p-obsidian-3) 100%);
+  --mdx-atmosphere:
+    radial-gradient(
+      1100px 640px at 8% -10%,
+      rgba(var(--p-espresso-rgb), 0.11) 0%,
+      rgba(var(--p-espresso-rgb), 0.04) 45%,
+      transparent 70%
+    ),
+    radial-gradient(900px 600px at 100% 110%, rgba(var(--p-smoke-rgb), 0.12) 0%, transparent 65%);
+
+  /* Hairlines */
+  --mdx-border: rgba(var(--p-ivory-rgb), 0.07);
+  --mdx-border-strong: rgba(var(--p-ivory-rgb), 0.12);
+  --mdx-border-hover: rgba(var(--p-ivory-rgb), 0.2);
+  --mdx-highlight: rgba(255, 236, 210, 0.045);
+  --mdx-row-hover: rgba(var(--p-ivory-rgb), 0.032);
+
+  /* Ink */
+  --mdx-text: var(--p-ivory-100);
+  --mdx-text-muted: var(--p-ivory-500);
+  --mdx-text-faint: var(--p-ivory-700);
+
+  /* Bronze: brand + interaction */
+  --mdx-bronze-300: var(--p-bronze-300);
+  --mdx-bronze-400: var(--p-bronze-400);
+  --mdx-bronze-500: var(--p-bronze-500);
+  --mdx-bronze-600: var(--p-bronze-600);
+  --mdx-bronze-800: var(--p-bronze-800);
+  --mdx-accent: var(--p-bronze-400);
+  --mdx-accent-strong: var(--p-bronze-300);
+  --mdx-accent-contrast: #1a120a;
+  --mdx-accent-soft: rgba(var(--p-bronze-rgb), 0.14);
+  --mdx-link: var(--p-bronze-300);
+
+  /* Status (reserved; never data series) */
+  --mdx-pass: var(--p-sage-400);
+  --mdx-pass-soft: rgba(143, 191, 114, 0.1);
+  --mdx-warn: var(--p-sulfur-400);
+  --mdx-warn-soft: rgba(226, 179, 64, 0.1);
+  --mdx-fail: var(--p-cinnabar-400);
+  --mdx-fail-soft: rgba(229, 101, 75, 0.11);
+  --mdx-info: var(--p-periwinkle-300);
+  --mdx-info-soft: rgba(154, 159, 230, 0.1);
+
+  /* Simulated / demo provenance: ink + a deliberately faint hatch (see DESIGN_LANGUAGE.md §2) */
+  --mdx-demo: var(--p-ivory-300);
+  --mdx-demo-soft: rgba(var(--p-ivory-rgb), 0.035);
+  --mdx-demo-border: rgba(var(--p-ivory-rgb), 0.2);
+  --mdx-demo-glyph: var(--p-bronze-300);
+  --mdx-hatch: repeating-linear-gradient(
+    -45deg,
+    rgba(var(--p-ivory-rgb), 0.055) 0 1px,
+    transparent 1px 5px
+  );
+
+  /* Data */
+  --mdx-series-mdx: var(--p-bronze-500);
+  --mdx-series-native: var(--p-verdigris-500);
+  --mdx-trace: var(--p-plum-500);
+  --mdx-trace-fill-top: rgba(var(--p-plum-rgb), 0.24);
+  --mdx-trace-fill-mid: rgba(var(--p-plum-rgb), 0.07);
+  --mdx-trace-fill-bottom: rgba(var(--p-plum-rgb), 0);
+  --mdx-trace-glow: rgba(var(--p-plum-rgb), 0.45);
+  --mdx-trace-ambient: rgba(var(--p-plum-rgb), 0.065);
+  --mdx-gauge: var(--p-champagne-400);
+  --mdx-gauge-glow: rgba(217, 174, 116, 0.35);
+  --mdx-gauge-track: rgba(var(--p-ivory-rgb), 0.08);
+  --mdx-tick: rgba(var(--p-ivory-rgb), 0.22);
+  --mdx-tick-minor: rgba(var(--p-ivory-rgb), 0.1);
+  --mdx-meter-fill: var(--p-ivory-300);
+  /* Generic slots (legacy LineChart, fixed order; validated as a set) */
+  --mdx-chart-1: var(--p-plum-500);
+  --mdx-chart-2: var(--p-verdigris-500);
+  --mdx-chart-3: var(--p-bronze-500);
+  --mdx-chart-4: var(--p-rose-500);
+  --mdx-chart-grid: rgba(var(--p-ivory-rgb), 0.05);
+
+  /* Motifs */
+  --mdx-motif: var(--p-ivory-300);
+  --mdx-motif-warm: var(--p-bronze-300);
+
+  /* Focus + depth */
+  --mdx-focus: var(--p-bronze-300);
+  --mdx-shadow: 0 1px 0 var(--mdx-highlight) inset, 0 14px 34px -18px rgba(0, 0, 0, 0.75);
+  --mdx-shadow-overlay: 0 1px 0 var(--mdx-highlight) inset, 0 24px 60px -20px rgba(0, 0, 0, 0.85);
 }
 
 :root[data-theme="light"] {
   color-scheme: light;
-  --mdx-bg: #f3f5f8;
-  --mdx-surface: #ffffff;
+  /* Functional only; art direction deferred (stage 9). */
+  --mdx-bg: #f4f1ec;
+  --mdx-shell: #ece7e0;
+  --mdx-surface: #fbf9f6;
+  --mdx-surface-low: #f6f3ee;
   --mdx-surface-raised: #ffffff;
-  --mdx-surface-sunken: #eef1f5;
-  --mdx-border: #d8dee7;
-  --mdx-border-strong: #b9c2cf;
-  --mdx-text: #18202b;
-  --mdx-text-muted: #4d5a6b;
-  --mdx-text-faint: #748094;
-  --mdx-accent: #1f79ad;
-  --mdx-accent-strong: #176392;
+  --mdx-surface-raised-2: #ffffff;
+  --mdx-surface-sunken: #efebe5;
+  --mdx-card-gradient: linear-gradient(180deg, #fbf9f6 0%, #f7f4ef 100%);
+  --mdx-atmosphere: none;
+  --mdx-border: rgba(60, 40, 20, 0.12);
+  --mdx-border-strong: rgba(60, 40, 20, 0.2);
+  --mdx-border-hover: rgba(60, 40, 20, 0.32);
+  --mdx-highlight: rgba(255, 255, 255, 0.7);
+  --mdx-row-hover: rgba(60, 40, 20, 0.03);
+  --mdx-text: #1d1814;
+  --mdx-text-muted: #5a4f45;
+  --mdx-text-faint: #7a6e62;
+  --mdx-bronze-300: #8a5a24;
+  --mdx-bronze-400: #9a6630;
+  --mdx-bronze-500: #9a6630;
+  --mdx-bronze-600: #7a4f22;
+  --mdx-bronze-800: #f1e2cf;
+  --mdx-accent: #9a6630;
+  --mdx-accent-strong: #7a4f22;
   --mdx-accent-contrast: #ffffff;
-  --mdx-accent-soft: rgba(31, 121, 173, 0.1);
-  --mdx-pass: #1f8a5b;
-  --mdx-pass-soft: rgba(31, 138, 91, 0.12);
-  --mdx-warn: #9a6a00;
-  --mdx-warn-soft: rgba(154, 106, 0, 0.12);
-  --mdx-fail: #c2362f;
-  --mdx-fail-soft: rgba(194, 54, 47, 0.1);
-  --mdx-info: #3b6ac2;
-  --mdx-info-soft: rgba(59, 106, 194, 0.1);
-  --mdx-demo: #9a6200;
-  --mdx-demo-soft: rgba(154, 98, 0, 0.12);
-  --mdx-chart-1: #1f79ad;
-  --mdx-chart-2: #1f8a5b;
-  --mdx-chart-3: #b07800;
-  --mdx-chart-4: #7d4fb0;
-  --mdx-chart-grid: #e3e8ef;
-  --mdx-focus: #1f79ad;
-  --mdx-shadow: 0 1px 2px rgba(20, 30, 45, 0.08);
+  --mdx-accent-soft: rgba(154, 102, 48, 0.12);
+  --mdx-link: #7a4f22;
+  --mdx-pass: #3f7a2a;
+  --mdx-pass-soft: rgba(63, 122, 42, 0.1);
+  --mdx-warn: #8a6200;
+  --mdx-warn-soft: rgba(138, 98, 0, 0.1);
+  --mdx-fail: #b53a22;
+  --mdx-fail-soft: rgba(181, 58, 34, 0.09);
+  --mdx-info: #4b50a8;
+  --mdx-info-soft: rgba(75, 80, 168, 0.09);
+  --mdx-demo: #3a3029;
+  --mdx-demo-soft: rgba(60, 40, 20, 0.04);
+  --mdx-demo-border: rgba(60, 40, 20, 0.28);
+  --mdx-demo-glyph: #8a5a24;
+  --mdx-hatch: repeating-linear-gradient(-45deg, rgba(60, 40, 20, 0.07) 0 1px, transparent 1px 5px);
+  --mdx-series-mdx: #9a6630;
+  --mdx-series-native: #13786a;
+  --mdx-trace: #6f52a3;
+  --mdx-trace-fill-top: rgba(111, 82, 163, 0.18);
+  --mdx-trace-fill-mid: rgba(111, 82, 163, 0.06);
+  --mdx-trace-fill-bottom: rgba(111, 82, 163, 0);
+  --mdx-trace-glow: transparent;
+  --mdx-trace-ambient: transparent;
+  --mdx-gauge: #9a6630;
+  --mdx-gauge-glow: transparent;
+  --mdx-gauge-track: rgba(60, 40, 20, 0.1);
+  --mdx-tick: rgba(60, 40, 20, 0.3);
+  --mdx-tick-minor: rgba(60, 40, 20, 0.14);
+  --mdx-meter-fill: #3a3029;
+  --mdx-chart-1: #6f52a3;
+  --mdx-chart-2: #13786a;
+  --mdx-chart-3: #9a6630;
+  --mdx-chart-4: #a3446b;
+  --mdx-chart-grid: rgba(60, 40, 20, 0.08);
+  --mdx-motif: #5a4f45;
+  --mdx-motif-warm: #8a5a24;
+  --mdx-focus: #8a5a24;
+  --mdx-shadow: 0 1px 2px rgba(40, 25, 10, 0.08);
+  --mdx-shadow-overlay: 0 12px 40px -12px rgba(40, 25, 10, 0.25);
 }
 
 :root {
   --mdx-font-sans:
-    "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    "Geist", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial,
+    sans-serif;
   --mdx-font-mono:
-    "Cascadia Mono", "Cascadia Code", ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono",
-    monospace;
-  --mdx-radius: 6px;
-  --mdx-radius-sm: 4px;
+    "Geist Mono", "Cascadia Mono", "Cascadia Code", ui-monospace, "SFMono-Regular", Consolas,
+    "Liberation Mono", monospace;
+
+  /* Shape */
+  --mdx-radius-lg: 12px;
+  --mdx-radius: 8px;
+  --mdx-radius-sm: 6px;
+  --mdx-radius-pill: 999px;
+
+  /* Space (4-point grid) */
   --mdx-space-1: 4px;
   --mdx-space-2: 8px;
   --mdx-space-3: 12px;
   --mdx-space-4: 16px;
   --mdx-space-5: 24px;
   --mdx-space-6: 32px;
+  --mdx-card-padding: 20px;
+  --mdx-card-padding-hero: 24px;
+  --mdx-gutter: 12px;
+  --mdx-page-padding: 28px;
+
+  /* Type scale */
+  --mdx-text-eyebrow: 11px;
+  --mdx-text-label: 12px;
+  --mdx-text-body: 13px;
+  --mdx-text-title: 15px;
+  --mdx-text-page: 28px;
+  --mdx-text-readout: 22px;
+  --mdx-text-hero: 48px;
+
+  /* Motion */
+  --mdx-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --mdx-duration: 160ms;
+
+  /* Motif opacity */
+  --mdx-motif-opacity: 0.07;
+  --mdx-motif-opacity-strong: 0.11;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --mdx-duration: 0ms;
+  }
 }

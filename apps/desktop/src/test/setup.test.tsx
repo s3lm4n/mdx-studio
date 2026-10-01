@@ -22,7 +22,7 @@ describe("Simulation setup and pre-flight gating", () => {
 
   it("disables Start and explains why when the runtime reports a critical FAIL (device busy)", async () => {
     const user = userEvent.setup();
-    renderApp("/simulation/setup", { scenario: "nominal" });
+    renderApp("/simulation/setup", { scenario: "demo-run" });
     await screen.findByRole("radiogroup", { name: "Run mode" });
     await user.click(screen.getByRole("radio", { name: "MDX" }));
 

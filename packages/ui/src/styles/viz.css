@@ -1,0 +1,319 @@
+/* Visualization primitives (DESIGN_LANGUAGE.md §7) */
+
+/* TraceChart */
+.mdx-trace {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.mdx-trace__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+.mdx-trace__plot {
+  position: relative;
+  min-width: 0;
+  cursor: crosshair;
+}
+.mdx-trace__svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+.mdx-trace__grid {
+  stroke: var(--mdx-chart-grid);
+  stroke-width: 1;
+}
+.mdx-trace__yaxis {
+  position: relative;
+  min-width: 34px;
+}
+.mdx-trace__ytick {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  font-size: 11px;
+  line-height: 1;
+  color: var(--mdx-text-faint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.mdx-trace__xaxis {
+  display: flex;
+  justify-content: space-between;
+  margin-right: 44px;
+  font-size: 11px;
+  color: var(--mdx-text-faint);
+  font-variant-numeric: tabular-nums;
+}
+.mdx-trace__live {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: var(--mdx-trace);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--mdx-trace) 22%, transparent),
+    0 0 10px var(--mdx-trace-glow);
+  pointer-events: none;
+}
+.mdx-trace--mdx .mdx-trace__live {
+  background: var(--mdx-series-mdx);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--mdx-series-mdx) 22%, transparent);
+}
+.mdx-trace--native .mdx-trace__live {
+  background: var(--mdx-series-native);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--mdx-series-native) 22%, transparent);
+}
+.mdx-trace__cursor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 1px solid var(--mdx-border-hover);
+  pointer-events: none;
+}
+.mdx-trace__cursor-dot {
+  position: absolute;
+  left: -4px;
+  width: 7px;
+  height: 7px;
+  margin-top: -3.5px;
+  border-radius: 50%;
+  background: var(--mdx-text);
+  box-shadow: 0 0 0 2px var(--mdx-surface);
+}
+.mdx-trace__readout {
+  position: absolute;
+  top: 0;
+  left: 8px;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  padding: 4px 8px;
+  border-radius: var(--mdx-radius-sm);
+  border: 1px solid var(--mdx-border-strong);
+  background: var(--mdx-surface-raised);
+  box-shadow: var(--mdx-shadow-overlay);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+.mdx-trace__readout--left {
+  left: auto;
+  right: 8px;
+}
+.mdx-trace__readout strong {
+  font-weight: 500;
+}
+.mdx-trace__readout-time {
+  margin-left: 8px;
+  color: var(--mdx-text-faint);
+}
+.mdx-trace__empty {
+  display: grid;
+  place-items: center;
+  color: var(--mdx-text-faint);
+  border: 1px dashed var(--mdx-border-strong);
+  border-radius: var(--mdx-radius);
+}
+
+/* RadialGauge */
+.mdx-gauge {
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.mdx-gauge__svg {
+  display: block;
+}
+.mdx-gauge__track {
+  fill: none;
+  stroke: var(--mdx-gauge-track);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.mdx-gauge__value {
+  fill: none;
+  stroke: var(--mdx-gauge);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.mdx-gauge__tick {
+  stroke: var(--mdx-tick-minor);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+.mdx-gauge__tick--major {
+  stroke: var(--mdx-tick);
+  stroke-width: 1.2;
+}
+.mdx-gauge__cap {
+  fill: var(--mdx-gauge);
+  stroke: var(--mdx-surface);
+  stroke-width: 2;
+}
+.mdx-gauge__cap--live {
+  filter: drop-shadow(0 0 5px var(--mdx-gauge-glow));
+}
+/* Centred on the dial's centre (the container crops the empty bottom of the square SVG). */
+.mdx-gauge__center {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--mdx-gauge-size);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding-top: 10px;
+  pointer-events: none;
+}
+.mdx-gauge__numeral {
+  font-size: 34px;
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.mdx-gauge__unit {
+  margin-left: 3px;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--mdx-text-muted);
+}
+.mdx-gauge__label {
+  font-size: var(--mdx-text-label);
+  color: var(--mdx-text-faint);
+}
+
+/* Meter */
+.mdx-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+.mdx-meter__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--mdx-space-3);
+  font-size: var(--mdx-text-label);
+}
+.mdx-meter__label {
+  color: var(--mdx-text-muted);
+}
+.mdx-meter__value {
+  color: var(--mdx-text);
+  font-weight: 500;
+}
+.mdx-meter__track {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--mdx-gauge-track);
+  overflow: hidden;
+}
+.mdx-meter__fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--mdx-meter-fill);
+  opacity: 0.85;
+}
+
+/* TrajectoryRuler */
+.mdx-ruler {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.mdx-ruler__track {
+  position: relative;
+  height: 24px;
+}
+.mdx-ruler__svg {
+  display: block;
+  width: 100%;
+  height: 24px;
+}
+.mdx-ruler__tick {
+  stroke: var(--mdx-tick-minor);
+  stroke-width: 1;
+}
+.mdx-ruler__tick--major {
+  stroke: var(--mdx-tick);
+}
+.mdx-ruler__tick--done {
+  stroke: color-mix(in srgb, var(--mdx-gauge) 55%, transparent);
+}
+.mdx-ruler__tick--done.mdx-ruler__tick--major {
+  stroke: var(--mdx-gauge);
+}
+.mdx-ruler__base {
+  stroke: var(--mdx-gauge-track);
+  stroke-width: 2;
+}
+.mdx-ruler__fill {
+  stroke: var(--mdx-gauge);
+  stroke-width: 2;
+}
+.mdx-ruler__marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--mdx-text);
+  box-shadow: 0 0 8px var(--mdx-gauge-glow);
+}
+.mdx-ruler__axis {
+  position: relative;
+  height: 14px;
+  font-size: 11px;
+  color: var(--mdx-text-faint);
+  font-variant-numeric: tabular-nums;
+}
+.mdx-ruler__axis span {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.mdx-ruler__axis span:first-child {
+  transform: none;
+}
+.mdx-ruler__axis span:last-child {
+  transform: translateX(-100%);
+}
+
+/* Motifs (DESIGN_LANGUAGE.md §8): faint, static, masked away from content */
+.mdx-motif {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  color: var(--mdx-motif);
+}
+.mdx-motif--subtle {
+  opacity: var(--mdx-motif-opacity);
+}
+.mdx-motif--strong {
+  opacity: var(--mdx-motif-opacity-strong);
+}
+.mdx-motif--fade-left {
+  mask-image: linear-gradient(90deg, transparent 0%, #000 45%);
+}
+.mdx-motif--fade-right {
+  mask-image: linear-gradient(270deg, transparent 0%, #000 45%);
+}
+.mdx-motif--fade-bottom {
+  mask-image: linear-gradient(0deg, transparent 0%, #000 60%);
+}
+.mdx-motif--fade-radial {
+  mask-image: radial-gradient(closest-side, #000 35%, transparent 100%);
+}

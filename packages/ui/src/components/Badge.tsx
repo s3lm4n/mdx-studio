@@ -2,28 +2,57 @@ import type { ReactNode } from "react";
 
 export type BadgeTone = "neutral" | "pass" | "warn" | "fail" | "info" | "demo";
 
-const GLYPHS: Record<BadgeTone, string> = {
-  neutral: "○",
-  pass: "✓",
-  warn: "▲",
-  fail: "✕",
-  info: "●",
-  demo: "◆",
+/**
+ * Glyph shapes per tone, drawn as SVG so they render identically regardless of font coverage
+ * (○ neutral, ✓ pass, ▲ warn, ✕ fail, ● info, ◆ demo). Shape differs per tone, so status never
+ * depends on colour alone.
+ */
+const GLYPHS: Record<BadgeTone, ReactNode> = {
+  neutral: <circle cx="5" cy="5" r="3.4" fill="none" stroke="currentColor" strokeWidth="1.3" />,
+  pass: (
+    <path
+      d="M1.6 5.3l2.2 2.2 4.6-5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ),
+  warn: <path d="M5 1.2l4 7.3H1z" fill="currentColor" />,
+  fail: (
+    <path
+      d="M2 2l6 6M8 2L2 8"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+    />
+  ),
+  info: <circle cx="5" cy="5" r="3.2" fill="currentColor" />,
+  demo: <path d="M5 0.6L9.4 5 5 9.4 0.6 5z" fill="currentColor" />,
 };
+
+export type BadgeAppearance = "pill" | "plain";
 
 export interface BadgeProps {
   tone?: BadgeTone;
   children: ReactNode;
   title?: string;
+  /** `plain` drops the chip: the glyph carries the tone, the text stays in ink. */
+  appearance?: BadgeAppearance;
 }
 
 /** Status chip. Always renders a glyph and text so meaning never depends on colour alone. */
-export function Badge({ tone = "neutral", children, title }: BadgeProps) {
+export function Badge({ tone = "neutral", children, title, appearance = "pill" }: BadgeProps) {
   return (
-    <span className={`mdx-badge mdx-badge--${tone}`} title={title}>
-      <span className="mdx-badge__glyph" aria-hidden="true">
+    <span
+      className={`mdx-badge mdx-badge--${tone}${appearance === "plain" ? " mdx-badge--plain" : ""}`}
+      title={title}
+    >
+      <svg className="mdx-badge__glyph" viewBox="0 0 10 10" aria-hidden="true" focusable="false">
         {GLYPHS[tone]}
-      </span>
+      </svg>
       {children}
     </span>
   );

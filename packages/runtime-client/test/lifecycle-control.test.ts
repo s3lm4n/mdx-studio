@@ -17,9 +17,9 @@ describe("mock runtime start/dispose", () => {
 
   it("start() is idempotent: repeated calls do not double the simulation speed", async () => {
     const clock = new ManualClock();
-    const once = new MockRuntimeClient({ scenario: "nominal", clock, autoStart: false });
+    const once = new MockRuntimeClient({ scenario: "demo-run", clock, autoStart: false });
     once.start();
-    const many = new MockRuntimeClient({ scenario: "nominal", clock, autoStart: false });
+    const many = new MockRuntimeClient({ scenario: "demo-run", clock, autoStart: false });
     many.start();
     many.start();
     many.start();
@@ -34,7 +34,7 @@ describe("mock runtime start/dispose", () => {
 
   it("survives a StrictMode-style start/dispose/start cycle and stops when disposed", async () => {
     const clock = new ManualClock();
-    const runtime = new MockRuntimeClient({ scenario: "nominal", clock, autoStart: false });
+    const runtime = new MockRuntimeClient({ scenario: "demo-run", clock, autoStart: false });
     runtime.start();
     runtime.dispose();
     runtime.start();
@@ -55,7 +55,7 @@ describe("mock runtime start/dispose", () => {
 
   it("does not skip simulated time across a pause: resuming resets the tick baseline", async () => {
     const clock = new ManualClock();
-    const runtime = new MockRuntimeClient({ scenario: "nominal", clock });
+    const runtime = new MockRuntimeClient({ scenario: "demo-run", clock });
     const job = (await runtime.listJobs()).find((j) => j.state === "RUNNING");
     clock.advance(1_000);
     const t1 = (await runtime.getTelemetryHistory(job?.id ?? "", 1))[0]?.simulation?.timeNs ?? 0;
