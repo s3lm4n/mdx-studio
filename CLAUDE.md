@@ -24,3 +24,17 @@ Read `docs/CLAUDE_IMPLEMENTATION_BRIEF.md` before making architectural or implem
 Before major edits, inspect the repository. Make coherent changes. After changes, run the checks that exist: formatting, linting, type checking, tests, and build where practical. Never silently overwrite user work.
 
 At each milestone summarize files changed, architecture decisions, commands/checks run, limitations, and next milestone.
+
+## Git attribution policy
+
+Commits carry only the repository owner's already-configured Git identity. CI enforces this for every commit a push or pull request introduces (`scripts/check-commit-attribution.mjs`, job `commit-attribution` in `.github/workflows/foundation.yml`).
+
+1. Never change the repository's or the machine's Git identity (`user.name`, `user.email`).
+2. Never use Claude, Anthropic, or an Anthropic email address (`@anthropic.com`) as Git author or committer.
+3. Never add `Co-Authored-By` trailers that identify Claude/Anthropic or use an Anthropic email address.
+4. Never add `Claude-Session` trailers.
+5. Do not add tool/vendor attribution trailers unless the repository owner explicitly requests them.
+6. Do not commit or push unless explicitly instructed.
+7. If explicitly instructed to commit, preserve the repository's already-configured Git identity; do not replace or override it with an AI/tool identity (no `--author`, `-c user.*`, or `GIT_AUTHOR_*`/`GIT_COMMITTER_*` overrides). If the configured identity is itself a Claude/Anthropic identity, do not commit; report it to the owner instead.
+
+Only attribution metadata is rejected. Branch names such as `claude/...`, file names, and prose or merge messages that mention Claude are fine.

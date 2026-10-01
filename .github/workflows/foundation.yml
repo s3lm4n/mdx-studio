@@ -22,6 +22,66 @@ jobs:
             exit 1
           fi
 
+  # Git attribution policy (CLAUDE.md): rejects Claude/Anthropic author/committer identities,
+  # Co-Authored-By and Claude-Session trailers in the commits this push or pull request introduces.
+  # Commits already reachable from the base are never inspected.
+  commit-attribution:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history: range arithmetic needs the base and must not stop at a shallow boundary.
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Reject Claude/Anthropic attribution in introduced commits
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.event.after }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          is_zero() { [[ "$1" =~ ^0+$ ]]; }
+          has_commit() { git cat-file -e "$1^{commit}" 2>/dev/null; }
+          case "$EVENT_NAME" in
+            pull_request)
+              # The PR's own head, not the synthetic merge commit actions/checkout leaves at HEAD.
+              revs=("$PR_HEAD_SHA" "^$PR_BASE_SHA")
+              # Also exclude the base branch's current tip, in case base.sha predates base commits
+              # that were merged into the PR branch.
+              if has_commit "refs/remotes/origin/$PR_BASE_REF"; then
+                revs+=("^refs/remotes/origin/$PR_BASE_REF")
+              fi
+              ;;
+            push)
+              if is_zero "$PUSH_AFTER"; then
+                echo "Ref deleted: no commits introduced."
+                exit 0
+              fi
+              if ! is_zero "$PUSH_BEFORE" &&
+                { has_commit "$PUSH_BEFORE" || git fetch --no-tags --quiet origin "$PUSH_BEFORE"; } &&
+                has_commit "$PUSH_BEFORE"; then
+                revs=("$PUSH_AFTER" "^$PUSH_BEFORE")
+              else
+                # New branch/tag (all-zero before), or a force-push whose old tip is gone: inspect
+                # everything not already on the default branch.
+                echo "No usable 'before' commit; comparing against origin/$DEFAULT_BRANCH."
+                revs=("$PUSH_AFTER" "^refs/remotes/origin/$DEFAULT_BRANCH")
+              fi
+              ;;
+            *)
+              echo "Unsupported event '$EVENT_NAME' for the attribution check." >&2
+              exit 1
+              ;;
+          esac
+          node scripts/check-commit-attribution.mjs "${revs[@]}"
+
   # Linux validation of the TypeScript workspace. Not evidence of Windows compatibility.
   node-checks:
     runs-on: ubuntu-latest
